@@ -1,0 +1,680 @@
+{
+  "name": "Field Force AI Agent (Main)",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "staff",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Phone_number",
+              "condition": "eq",
+              "keyValue": "={{ $json.contacts[0].wa_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -48
+      ],
+      "id": "50c8a827-c225-49db-90c8-ee9c4e355939",
+      "name": "Auth: Get User",
+      "retryOnFail": false,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "iZxtWuO2BtxzHOeM",
+          "name": "Whatsapp Automation DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -48
+      ],
+      "id": "99009793-7d7f-42e6-bcb5-79c40c6e331f",
+      "name": "User Exists?"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=You are a Medical Representative and HO Assistant, Act based on the user's Role (if the user's role is MR, act as MR assistant otherwise act as HO's assistant)\nCurrent Date: {{ $now }}\nUser: {{ $('Auth: Get User').item.json.first_name }}\nRole: {{ $('Auth: Get User').item.json.role }}\n\nTOOLS:\n1. \"get_pending_works\": Use this when the user asks about THEIR OWN pending works. (eg. What all my pedning works?)\n2. \"update_work_status\": Use this when the user conveys that he/she finishes a task given. REQUIRED: You must provide 'id' and 'notes'.\n3. \"check_team_status\": Use this when an HO asks about his team member's work (eg. Who all yet to complete thier work in my team?).\n4. \"remind_team\": Use this when HO requests for reminder to send to his team member's target to achieve (eg. Remind my MR's to achieve thier targets in Chennai)\n5. \"hcp_wish\":Use this when the MR requests for a wish message. Include the realtive Image with the message. (eg. Could you send me a wish message for diwali)\n\nRULES:\n- If Role is 'MR', you MUST NOT use \"check_team_status\". Tell them they are unauthorized.\n- If Role is 'HO', you can use \"check_team_status\".\n- Never ask the user for their ID; you already have it."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        592,
+        320
+      ],
+      "id": "04c3c572-431e-4d7b-bdab-07a9aff6fdf1",
+      "name": "Gemini Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        592
+      ],
+      "id": "42f0433e-c4f4-406c-9646-90fae4dde4dd",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qIhHDGvUu6kDNRJk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "get_pending_works",
+        "description": "Gets pending work for the CURRENT USER ONLY. Do not use this for Team queries.",
+        "workflowId": "Qc1219UcHFvQgdWb",
+        "responsePropertyName": "output",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "get_pending"
+            },
+            {
+              "name": "user_id",
+              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        752,
+        592
+      ],
+      "id": "25753fd1-db1c-4830-be24-4dd006179e01",
+      "name": "Tool: Get Pending"
+    },
+    {
+      "parameters": {
+        "name": "update_work_status",
+        "description": "Updates work status. Input: {\"id\": 123, \"notes\": \"text\"}",
+        "workflowId": "Qc1219UcHFvQgdWb",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "update_work"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"id\": 123,\n  \"notes\": \"Visited the doctor, he requested 50 samples.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        592
+      ],
+      "id": "b58fb440-6790-4ed0-9d82-c0853984aeea",
+      "name": "Tool: Update Work"
+    },
+    {
+      "parameters": {
+        "name": "check_team_status",
+        "description": "For HOs only. Checks team status.",
+        "workflowId": "Qc1219UcHFvQgdWb",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "check_team"
+            },
+            {
+              "name": "user_id",
+              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        592
+      ],
+      "id": "e39e9e2a-fee8-4977-860b-83085f5725b0",
+      "name": "Tool: Check Team"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ 'user_' + $('WhatsApp Trigger').item.json.messages.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        576,
+        624
+      ],
+      "id": "8895e080-0655-41f5-8712-1b135923075b",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "remind_team",
+        "description": "Call this when the user wants to send reminder messages to teammates regarding pending work for a specific month or area.",
+        "workflowId": "Qc1219UcHFvQgdWb",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "remind_team"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"filter_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"month\", \"area\"],\n      \"description\": \"Filter by 'month' or 'area'\"\n    },\n    \"filter_value\": {\n      \"type\": \"string\",\n      \"description\": \"The value to filter by (e.g. 'November 2025' or 'North Zone')\"\n    },\n    \"note\": {\n      \"type\": \"string\",\n      \"description\": \"The reminder note from HR\"\n    }\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        592
+      ],
+      "id": "3f97f8c2-22b0-4f70-8c37-83cd2eed05fa",
+      "name": "Tool: Remind Team"
+    },
+    {
+      "parameters": {
+        "name": "hcp_wish",
+        "description": "Call this when the MR request for a wsih template on a specfic event or request for a image from the database with wish messages",
+        "workflowId": "Qc1219UcHFvQgdWb",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "hcp_wish"
+            },
+            {
+              "name": "chat_id",
+              "stringValue": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"event_name\": {\n      \"type\": \"string\",\n      \"description\": \"The occasion for the wish (e.g. 'Diwali', 'New Year', 'Birthday').\"\n    },\n    \"doctor_name\": {\n      \"type\": \"string\",\n      \"description\": \"The name of the doctor (e.g. 'Dr. Mehta').\"\n    }\n  },\n  \"required\": [\"event_name\", \"doctor_name\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        592
+      ],
+      "id": "de01ec10-1c7f-408a-a00f-608e2020cb7c",
+      "name": "Tool: Wishes"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        -48
+      ],
+      "id": "cc062989-c4eb-4dfe-8376-8696f015054f",
+      "name": "WhatsApp Trigger",
+      "webhookId": "08093671-4b8d-4d2b-8158-f6324f234d88",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "9vyODNS0sSaAtK9R",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        304
+      ],
+      "id": "727524fc-c811-4fdf-926d-f515f4133501",
+      "name": "Send message1",
+      "webhookId": "153e194e-1213-40ea-8f47-145f4e88c534",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        -144
+      ],
+      "id": "47526d9e-2405-41c1-a299-3cb745452166",
+      "name": "Download media",
+      "webhookId": "2d9002b8-4a0d-4fb3-a03e-e724f323a4ef",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://supabase.com/dashboard/project/amrxvoyiwlqfsfepvryn/storage/files/buckets/marketing-assets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtcnh2b3lpd2xxZnNmZXB2cnluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDk1NTMxNywiZXhwIjoyMDgwNTMxMzE3fQ.4vCQiMf1vA4bK7H5ByuBIt1OQm4QnfeHGungcdhljiw"
+            },
+            {
+              "name": "Content-Type",
+              "value": "image/jpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        960,
+        -144
+      ],
+      "id": "57054d0a-35d8-40df-9ba5-9bcb31943106",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4Br5aKi2TW8u1yhb",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "Access Denied. Your WhatsApp Phone number is not registered in our System. Please contact your administrator.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        -272
+      ],
+      "id": "979fd1b6-366a-4a7f-8cee-6b1092c6accc",
+      "name": "Send message",
+      "webhookId": "0d78fddc-f238-4ff6-a6fa-a89a45cbc775",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5d53a6fa-4508-43f2-9e93-a93015c5a6f9"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1cb18750-caa0-4727-ab6f-d1aa93bccc4e",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body.toLowerCase() }}",
+                    "rightValue": "over",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a019d683-77f4-446f-b491-88346091e105",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        208,
+        32
+      ],
+      "id": "5e2d9808-c56a-4bad-8f0e-3714c74eafa9",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH updated_rows AS (\n  UPDATE prescription_uploads\n  SET \n    status = 'confirmed',\n    campaign_reference = $2   -- <--- Update the name here\n  WHERE \n    mr_phone = $1 \n    AND status = 'pending'\n  RETURNING id\n)\nSELECT count(*) as image_count FROM updated_rows;",
+        "options": {
+          "queryReplacement": "={{ [ $('WhatsApp Trigger').item.json.contacts[0].wa_id] }}\n{{ \n  [ \n    $('WhatsApp Trigger').item.json.contacts[0].wa_id,\n    $('WhatsApp Trigger').item.json.messages[0].text.body.replace(/over/i, '').trim()\n  ]\n}}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        592,
+        96
+      ],
+      "id": "12adb388-281e-43a1-894e-e2cc6e763098",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Auth: Get User": {
+      "main": [
+        [
+          {
+            "node": "User Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Exists?": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Get Pending": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Update Work": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Check Team": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Remind Team": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Wishes": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Auth: Get User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Download media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b2aa77cb-7aab-4b05-a06a-c50a49be2fc5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc7cbdbfad8d40a565225d9667a7a22dac2b6e5b51f0cb1fe88924f14c09b03d"
+  },
+  "id": "XElYjxI5RmSujQIr",
+  "tags": []
+}

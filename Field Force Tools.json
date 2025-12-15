@@ -1,0 +1,681 @@
+{
+  "name": "Field Force Tools",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1632,
+        224
+      ],
+      "id": "696d2963-269a-4f29-9323-8ea2a960ffd1",
+      "name": "When Called by Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.action }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "get_pending"
+            },
+            {
+              "value2": "update_work",
+              "output": 1
+            },
+            {
+              "operation": "contains",
+              "value2": "team",
+              "output": 2
+            },
+            {
+              "value2": "hcp_wish",
+              "output": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        192
+      ],
+      "id": "9a3dabec-796a-41ea-a3fd-479925bf5855",
+      "name": "Router",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "works",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "assigned_to",
+              "condition": "eq",
+              "keyValue": "={{ $json.user_id }}"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "Pending"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -688
+      ],
+      "id": "2c59071a-263c-4c9a-87bc-119819acc937",
+      "name": "DB: Get Pending",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "iZxtWuO2BtxzHOeM",
+          "name": "Whatsapp Automation DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "works",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "Completed"
+            },
+            {
+              "fieldId": "visit_notes",
+              "fieldValue": "={{ $json.query.notes }}"
+            },
+            {
+              "fieldId": "completion_date",
+              "fieldValue": "{{ $now }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -656
+      ],
+      "id": "3d27e4d0-2210-4986-a34a-3b8bf9fb14d2",
+      "name": "DB: Update Work",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "iZxtWuO2BtxzHOeM",
+          "name": "Whatsapp Automation DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "df3fd618-a530-40ab-9fc9-a908f0aacb73",
+              "name": "output",
+              "value": "={{($json.data)}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        -16
+      ],
+      "id": "221ba900-e655-4bb3-beff-0c25ba5bcc36",
+      "name": "Output_Result"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  s.first_name, \n  s.last_name,\n  w.title, \n  w.status,\n  w.due_date\nFROM works w\nJOIN staff s ON w.assigned_to = s.id\nWHERE s.reporting_to = '{{ $json.user_id }}' \nAND w.status = 'Pending';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -384,
+        -160
+      ],
+      "id": "57d9d824-c925-47b6-baeb-c455e42315d0",
+      "name": "DB: Check Team",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        688,
+        16
+      ],
+      "id": "3b4af207-ddb2-4184-a5a9-b8a54dcddf4b",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  t.id as task_id,\n  t.target_amount,\n  t.month_year,\n  t.area,\n  u.\"Phone_number\",\n  u.first_name,\n  u.last_name,\n  $3 as note\nFROM targets t\nJOIN staff u ON t.mr_id = u.id\nWHERE \n  t.status = 'Pending' \n  AND (\n    ($1 = 'month' AND t.month_year::text LIKE $2 || '%') \n    OR \n    ($1 = 'area' AND t.area = $2)\n  )",
+        "options": {
+          "queryReplacement": "={{ [ $('Router').item.json.query.filter_type, $('Router').item.json.query.filter_value, $('Router').item.json.query.note ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -432,
+        224
+      ],
+      "id": "b8a807de-c753-42eb-a9f8-1c64850c0a8c",
+      "name": "Execute a SQL query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -96,
+        192
+      ],
+      "id": "c72e9c3b-93dd-456d-864f-ee869f2ec8eb",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  w.image_url,\n  w.event_name,\n  d.name as doctor_name,\n  d.specialty\nFROM wish_templates w, doctors d\nWHERE\n  w.event_name ILIKE '%' || $1 || '%'   -- Matches anything containing 'Diwali'\n  AND d.name ILIKE '%' || $2 || '%'    -- Matches anything containing 'Mehta'\nLIMIT 1;",
+        "options": {
+          "queryReplacement": "=[ {{$json.query.event_name}}, {{ $json.query.doctor_name }} ]"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -816,
+        656
+      ],
+      "id": "6dc32aec-d163-48b0-b9c9-9aeb2195952e",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write a short, professional WhatsApp message for a Medical Representative to send to {{ $json.doctor_name }} ({{ $json.specialty }}) wishing them a happy {{ $json.event_name }}. Keep it warm but concise. Do not include placeholder values or link values any Your name or Organization Name (e.g. [Your Name], https://www.google.com). Don't generate placeholder values or links in the whatsapp message."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        64,
+        656
+      ],
+      "id": "8c9d2a5d-e663-4076-8293-68a995293058",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qIhHDGvUu6kDNRJk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{$json.Phone_number}}",
+        "textBody": "=Hello {{$json.mr_name}}, 🔔 Reminder: You have a pending target for {{$json.month_year}} in **{{$json.area}}**. Task ID: {{$json.task_id}} Target Amount: {{$json.target_amount}} Note from HR: {{$json.note}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        272
+      ],
+      "id": "6dbe2084-9681-4c71-8258-e1ef74e9a05c",
+      "name": "Send message",
+      "webhookId": "38f52894-2e80-4ed1-adfc-19199a1b8cf0",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "check_team",
+                    "rightValue": "={{ $json.action }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "7a12ad26-0393-43fc-9bd5-ad0258f74af2"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3f9687ba-8d1a-4d45-a0e8-85ec17f1c8da",
+                    "leftValue": "remind_team",
+                    "rightValue": "={{ $json.action }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -752,
+        208
+      ],
+      "id": "3489f048-ce5f-4fcd-83fd-850c9331435b",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Execute a SQL query1').item.json.image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -608,
+        656
+      ],
+      "id": "ba1538a9-f8fe-4554-930d-a5446df68ce4",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "phoneNumberId": "715904891617490",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -192,
+        656
+      ],
+      "id": "7907685b-6501-4c69-b2c2-3be24656c60c",
+      "name": "Upload media",
+      "webhookId": "ebe22b80-d6ee-48b7-b3b7-a3bd73541524",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('When Called by Agent').item.json.chat_id }}",
+        "messageType": "image",
+        "mediaPath": "useMediaId",
+        "mediaId": "={{ $('Upload media').item.json.id }}",
+        "additionalFields": {
+          "mediaCaption": "={{ $json.content.parts[0].text }}"
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        656
+      ],
+      "id": "019ab6c9-d498-4171-9d23-e992bfa8a3e0",
+      "name": "Send message1",
+      "webhookId": "fe45feeb-ebc3-446c-a8ac-f70be86b032b",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputType": "base64"
+      },
+      "type": "n8n-nodes-convert-image.imageFormatConverter",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        928
+      ],
+      "id": "45903216-8532-4c20-b130-376192efd865",
+      "name": "Image Format Converter"
+    }
+  ],
+  "pinData": {
+    "When Called by Agent": [
+      {
+        "json": {
+          "query": {
+            "event_name": "Diwali",
+            "doctor_name": "Mehta"
+          },
+          "action": "hcp_wish",
+          "chat_id": "919344183416"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Called by Agent": {
+      "main": [
+        [
+          {
+            "node": "Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router": {
+      "main": [
+        [
+          {
+            "node": "DB: Get Pending",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Update Work",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Update Work": {
+      "main": [
+        [
+          {
+            "node": "Output_Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Pending": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Check Team": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Output_Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "DB: Check Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload media": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message1": {
+      "main": [
+        []
+      ]
+    },
+    "Image Format Converter": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d3158b93-61c4-4ef7-b928-5eaa8ba2f0b6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc7cbdbfad8d40a565225d9667a7a22dac2b6e5b51f0cb1fe88924f14c09b03d"
+  },
+  "id": "Qc1219UcHFvQgdWb",
+  "tags": []
+}

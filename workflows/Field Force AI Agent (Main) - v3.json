@@ -1,0 +1,1314 @@
+{
+  "name": "Field Force AI Agent (Main) - Redesigned",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1424,
+        368
+      ],
+      "id": "6bde407a-0c47-427b-88d4-1bf20cc4f4c8",
+      "name": "WhatsApp Trigger",
+      "webhookId": "field-force-main-webhook",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "9vyODNS0sSaAtK9R",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "staff",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Phone_number",
+              "keyValue": "={{ $json.contacts[0].wa_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -976,
+        368
+      ],
+      "id": "9a835259-dd8b-49df-b371-bacab1020086",
+      "name": "Auth: Get User",
+      "retryOnFail": false,
+      "maxTries": 3,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "iZxtWuO2BtxzHOeM",
+          "name": "Whatsapp Automation DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        368
+      ],
+      "id": "0e45f38a-a8f8-4c71-b389-bdaf2a9204ab",
+      "name": "User Exists?"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "🚫 *Access Denied*\n\nYour WhatsApp number is not registered in our system.\n\nPlease contact your administrator for assistance.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -528,
+        688
+      ],
+      "id": "d0ec9c56-2696-4967-a433-509e03fc401d",
+      "name": "Send: Access Denied",
+      "webhookId": "9706b583-1333-4ce2-bc80-136ba26b452b",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1df3c8f1-77e3-4303-8181-4a2f0719a8c1"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].text?.body?.toLowerCase() }}",
+                    "rightValue": "over",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "33019a1a-4c54-404d-8c56-5c166d2ccd6f"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].text?.body?.toLowerCase() }}",
+                    "rightValue": "start quiz",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "f6a7d6ef-b994-4b06-af76-321a0ae0883c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].text?.body?.toUpperCase() }}",
+                    "rightValue": "^[A-D]$",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "id": "92b4466e-4d33-4325-b9b5-8fac6c13db0c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4d6a4962-8e26-422d-beb6-7ce7c73030ba"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -496,
+        240
+      ],
+      "id": "92476b9c-bb53-40cb-8e37-eec23b850043",
+      "name": "Route: Message Type"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM upload_sessions WHERE mr_phone = $1 AND status = 'active' AND expires_at > NOW() LIMIT 1",
+        "options": {
+          "queryReplacement": "={{ [$('WhatsApp Trigger').item.json.contacts[0].wa_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -176,
+        -288
+      ],
+      "id": "ddffd08f-1ea4-4179-a2cc-6b281d644192",
+      "name": "Check: Active Upload Session",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -80
+      ],
+      "id": "cdf95b71-d244-482c-8e13-727f46c82278",
+      "name": "Has Active Session?"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        -192
+      ],
+      "id": "46c8067d-39d4-45e6-8eac-b059c6af4838",
+      "name": "Get Image URL",
+      "webhookId": "9ee4cefe-8a83-4524-bad6-fe032f365ed4",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        560,
+        -192
+      ],
+      "id": "2d0d7498-b956-4ce0-8174-acf28b2e889f",
+      "name": "Download Image",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4Br5aKi2TW8u1yhb",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://amrxvoyiwlqfsfepvryn.supabase.co/storage/v1/object/prescriptions/' + $('WhatsApp Trigger').item.json.contacts[0].wa_id + '/' + Date.now() + '.jpg' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "image/jpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        -192
+      ],
+      "id": "eaba14b0-3fbd-483e-ab92-f394c431b0fc",
+      "name": "Upload to Supabase Storage",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4Br5aKi2TW8u1yhb",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO prescription_uploads (mr_phone, image_url, campaign_reference, status, created_at) VALUES ($1, $2, (SELECT campaign_name FROM upload_sessions WHERE mr_phone = $1 AND status = 'active' LIMIT 1), 'pending', NOW()) RETURNING id",
+        "options": {
+          "queryReplacement": "={{ [$('WhatsApp Trigger').item.json.contacts[0].wa_id, $json.Key || $json.path] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1040,
+        -192
+      ],
+      "id": "89e05f25-02d9-4750-8663-0cee76ed5f17",
+      "name": "Save Image Record",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE upload_sessions SET image_count = image_count + 1 WHERE mr_phone = $1 AND status = 'active'",
+        "options": {
+          "queryReplacement": "={{ [$('WhatsApp Trigger').item.json.contacts[0].wa_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1280,
+        -192
+      ],
+      "id": "f1bf2c81-7406-44fd-8338-41356c0ce2cc",
+      "name": "Update Image Count",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "⚠️ *No Active Session*\n\nYou don't have an active upload session.\n\nTo start uploading, say \"I want to upload images for [campaign name]\"",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        48
+      ],
+      "id": "b110153d-4999-4782-bea2-1c5f3c984a4c",
+      "name": "Send: No Active Session",
+      "webhookId": "53e1e85e-aabe-4d6b-af16-a00ce90add88",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH updated AS (UPDATE upload_sessions SET status = 'completed', completed_at = NOW() WHERE mr_phone = $1 AND status = 'active' RETURNING campaign_name, image_count) UPDATE prescription_uploads SET status = 'confirmed', campaign_reference = (SELECT campaign_name FROM updated) WHERE mr_phone = $1 AND status = 'pending' RETURNING (SELECT campaign_name FROM updated) as campaign_name, (SELECT image_count FROM updated) as image_count",
+        "options": {
+          "queryReplacement": "={{ [$('WhatsApp Trigger').item.json.contacts[0].wa_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -176,
+        32
+      ],
+      "id": "9bbe0a5a-1998-4784-acd4-0f8f819f53a6",
+      "name": "Complete Upload Session",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ '✅ *Upload Complete*\\n\\n*' + ($json.image_count || 0) + '* image(s) uploaded successfully for *' + ($json.campaign_name || 'Unknown') + '* campaign.\\n\\nAll images have been saved to your records.' }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        128
+      ],
+      "id": "cef8f7d9-1082-47ac-a47c-98b424087e79",
+      "name": "Send: Upload Complete",
+      "webhookId": "f6bb590e-a7ce-4c14-869b-d91b8fef1962",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT qa.id as assignment_id, q.id as quiz_id, q.title as quiz_title, q.difficulty_level, q.total_questions, q.time_limit_minutes, qa.due_date FROM quiz_assignments qa JOIN quizzes q ON qa.quiz_id = q.id WHERE qa.mr_id = $1 AND qa.status = 'assigned' AND q.is_active = true ORDER BY qa.due_date ASC",
+        "options": {
+          "queryReplacement": "={{ [$('Auth: Get User').item.json.id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -176,
+        272
+      ],
+      "id": "aae3dd36-8c2b-4fcb-a396-95f62a2e6c69",
+      "name": "Get Pending Quizzes",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.length }}",
+              "operation": "gt"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        96,
+        368
+      ],
+      "id": "c0e07b97-03c6-4f86-b220-4543859bce43",
+      "name": "Has Pending Quizzes?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format quiz list for WhatsApp\nconst quizzes = $input.all();\n\nif (quizzes.length === 0) {\n  return [{ json: { message: '📭 *No Pending Quizzes*\\n\\nYou don\\'t have any quizzes assigned at the moment.\\n\\nCheck back later or contact your HO.' } }];\n}\n\nlet message = '📚 *Your Pending Quizzes*\\n\\n───────────────────';\n\nquizzes.forEach(q => {\n  const quiz = q.json;\n  const dueDate = quiz.due_date ? new Date(quiz.due_date).toLocaleDateString('en-IN') : 'No deadline';\n  message += `\\n\\n*#${quiz.quiz_id}* - ${quiz.quiz_title}\\n   📊 Difficulty: ${quiz.difficulty_level}\\n   ❓ Questions: ${quiz.total_questions}\\n   ⏱️ Time: ${quiz.time_limit_minutes} mins\\n   📅 Due: ${dueDate}`;\n});\n\nmessage += '\\n\\n───────────────────\\n💡 _Reply with quiz ID to start_\\n_Example: \"Start quiz #1\"_';\n\nreturn [{ json: { message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        272
+      ],
+      "id": "0a84227a-4cc1-4d3d-8335-4e9a6977c3ff",
+      "name": "Format Quiz List"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        272
+      ],
+      "id": "d742c868-0ae7-4cd8-abe4-7731eaa0f049",
+      "name": "Send: Quiz List",
+      "webhookId": "132c932d-ec6e-4c44-b24f-5090588ea0f1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "📭 *No Pending Quizzes*\n\nYou don't have any quizzes assigned at the moment.\n\nCheck back later or contact your HO.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        464
+      ],
+      "id": "3bb3275b-7bfd-45de-9d5d-d6feb2cde0ff",
+      "name": "Send: No Quizzes",
+      "webhookId": "93ddd924-8743-40f9-9c8a-c24af1e2a79f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": "quiz-answer-handler",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        496
+      ],
+      "id": "e42c758c-e553-4b84-beff-d2afb5c739b7",
+      "name": "Handle Quiz Answer"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=You are a Field Force Assistant for Medical Representatives (MR) and Head Officers (HO).\n\nCurrent Date: {{ $now.format('YYYY-MM-DD') }}\nUser: {{ $('Auth: Get User').item.json.first_name }} {{ $('Auth: Get User').item.json.last_name }}\nUser ID: {{ $('Auth: Get User').item.json.id }}\nRole: {{ $('Auth: Get User').item.json.role }}\nPhone: {{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}\n\n## AVAILABLE TOOLS:\n\n### For ALL Users (MR & HO):\n\n1. **hcp_wish** - If the user asks to create a event based greeting or wish, you MUST call the HCP Wish tool, don't generate any wish tool using gemini ai model\n   - Use when: \"wish for X\", \"a festival related wish\", \"birthday message\" ,\"create a wish message for X\", \"generate a wish message\"\n   - REQUIRED: event_name and doctor_name\n\n2. **get_pending_works** - Get user's own pending tasks\n   - Use when: \"my pending tasks\", \"what's pending\", \"my work\"\n   \n3. **update_work_status** - Update a task to completed\n   - Use when: \"update task #X\", \"completed #X\", \"mark #X done\"\n   - REQUIRED: task id and notes\n\n4. **start_upload_session** - Start image upload session for prescriptions\n   - Use when: \"upload images for X campaign\", \"send prescription images\"\n   - REQUIRED: campaign_name\n   - Response: Session started, user can send images\n\n### For HO Only:\n5. **check_team_status** - Check team members' pending work\n   - Use when: \"team status\", \"my team's work\", \"who hasn't completed\"\n   - BLOCK if role is MR\n   \n6. **remind_team** - Send reminders to team about targets\n   - Use when: \"remind team\", \"send reminder to MRs\"\n   - REQUIRED: filter_type (month/area), filter_value, note\n   - BLOCK if role is MR\n\n## RULES:\n1. NEVER ask for user ID - you have it\n2. If role is 'MR', DENY access to check_team_status and remind_team\n3. For quiz-related queries, tell user to type \"start quiz\"\n4. Keep responses concise and use WhatsApp formatting (*bold*, _italic_)\n5. When listing tasks, always show task ID prominently\n6. For image uploads, ONLY start session - don't process images\n\n## RESPONSE FORMAT:\n- Use emojis sparingly but appropriately\n- Use *bold* for important info\n- Use bullet points for lists\n- Keep messages under 500 characters when possible\n\n## INCIDENT MANAGEMENT\n\nWhen user reports a task-specific issue:\n1. Use update_work with status=\"Issue\", include issue_type and issue_description\n2. After the tool responds, ASK for more details:\n   - \"Can you tell me more about what happened?\"\n   - \"What caused this issue?\"\n3. When user provides details, use add_issue_details\n\nWhen user reports a general issue (not task-related):\n1. Use report_issue with issue_type and description  \n2. ASK for more details\n3. Use add_issue_details when they respond\n\nFor HO users:\n- check_incidents: Shows all open issues from team\n- resolve_issue: Resolves issue and reopens task if linked\n\n## ISSUE TYPES\n- stock_empty: Product/sample stock unavailable\n- doctor_unavailable: Doctor not at clinic\n- clinic_closed: Clinic was closed\n- transport_issue: Vehicle breakdown\n- weather_issue: Bad weather\n- medical_leave: MR health issues\n- documentation_missing: Required docs unavailable\n- other: Any other issue\n\n## IMPORTANT\n- After creating ANY incident, always ask for more details\n- Remember the incident_id from the response to use with add_issue_details\n- Be empathetic when users report issues"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -192,
+        736
+      ],
+      "id": "6374d26e-2d16-40d8-a2d5-2d36f835a172",
+      "name": "Gemini Agent"
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        1040
+      ],
+      "id": "49df86cd-0429-47f2-ad73-f2adb96c0579",
+      "name": "Google Gemini Flash",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qIhHDGvUu6kDNRJk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ 'user_' + $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        1024
+      ],
+      "id": "a401e380-48c9-466f-a3f1-9a43caba8dce",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "get_pending_works",
+        "description": "Gets the current user's own pending tasks/works. Returns list of pending items with ID, title, due date.",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "output",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "get_pending"
+            },
+            {
+              "name": "user_id",
+              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        1024
+      ],
+      "id": "edd50db9-99cc-4f2d-90c4-c3bae764a4e5",
+      "name": "Tool: Get Pending"
+    },
+    {
+      "parameters": {
+        "name": "update_work_status",
+        "description": "Updates a task/work status to completed. Requires task ID and optional notes.",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "update_work"
+            },
+            {
+              "name": "user_id",
+              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"id\": 123,\n  \"notes\": \"Visited doctor, requested 50 samples.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        1024
+      ],
+      "id": "a9b3625f-d495-4778-8541-926ec255ce40",
+      "name": "Tool: Update Work"
+    },
+    {
+      "parameters": {
+        "name": "check_team_status",
+        "description": "FOR HO ONLY. Checks pending work status of all team members (MRs) reporting to this HO.",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "check_team"
+            },
+            {
+              "name": "user_id",
+              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        1024
+      ],
+      "id": "2e9de0d4-b25f-4491-8f45-ce932def363a",
+      "name": "Tool: Check Team"
+    },
+    {
+      "parameters": {
+        "name": "remind_team",
+        "description": "FOR HO ONLY. Sends WhatsApp reminders to team MRs about their pending targets. Filter by month or area.",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "remind_team"
+            },
+            {
+              "name": "ho_id",
+              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"filter_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"month\", \"area\"],\n      \"description\": \"Filter by 'month' or 'area'\"\n    },\n    \"filter_value\": {\n      \"type\": \"string\",\n      \"description\": \"The value to filter by (e.g. 'November' or 'Chennai')\"\n    },\n    \"note\": {\n      \"type\": \"string\",\n      \"description\": \"Custom reminder message from HO\"\n    }\n  },\n  \"required\": [\"filter_type\", \"filter_value\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        1024
+      ],
+      "id": "6bdbc84b-b4dc-4afc-b21f-74294bc9876a",
+      "name": "Tool: Remind Team"
+    },
+    {
+      "parameters": {
+        "name": "hcp_wish",
+        "description": "Gets a wish template image and generates personalized message for a doctor. Returns image with caption to send to the MR.",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "hcp_wish"
+            },
+            {
+              "name": "chat_id",
+              "stringValue": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"event_name\": {\n      \"type\": \"string\",\n      \"description\": \"The occasion (e.g. 'Diwali', 'Christmas', 'Birthday', 'Doctor Day')\"\n    },\n    \"doctor_name\": {\n      \"type\": \"string\",\n      \"description\": \"Doctor's name (e.g. 'Dr. Mehta', 'Mehta')\"\n    }\n  },\n  \"required\": [\"event_name\", \"doctor_name\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        1024
+      ],
+      "id": "063b4708-05c3-4d84-b690-b486e2f141c3",
+      "name": "Tool: HCP Wish"
+    },
+    {
+      "parameters": {
+        "name": "start_upload_session",
+        "description": "Starts a new image upload session for prescription images. MR can then send multiple images within 2 minutes.",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "start_upload"
+            },
+            {
+              "name": "mr_phone",
+              "stringValue": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"campaign_name\": {\n      \"type\": \"string\",\n      \"description\": \"Name of the campaign for these images (e.g. 'XYZ Campaign', 'December Drive')\"\n    }\n  },\n  \"required\": [\"campaign_name\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        1024
+      ],
+      "id": "cdac9218-124d-477a-aed8-9a2a8c621d66",
+      "name": "Tool: Start Upload"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        624
+      ],
+      "id": "81403e53-d994-409c-8f40-f577f1106fb3",
+      "name": "Send: Agent Response",
+      "webhookId": "9b4aba28-e671-40f5-8e6f-9ae95d1246e9",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $json.error || 'Unknown error occurred' }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        720,
+        640
+      ],
+      "id": "b0e6d918-8f72-440a-b645-dce7ab6e77ad",
+      "name": "Error Handler"
+    },
+    {
+      "parameters": {
+        "name": "report_issue",
+        "description": "Report a general issue not linked to a specific task (vehicle breakdown, personal emergency, etc.)",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        1024
+      ],
+      "id": "8487bdd8-4b3e-411c-943f-594f7176f484",
+      "name": "Tool: Report Issue"
+    },
+    {
+      "parameters": {
+        "name": "add_issue_details",
+        "description": "Report a general issue not linked to a specific task (vehicle breakdown, personal emergency, etc.)",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"name\": \"add_issue_details\",\n  \"description\": \"Add detailed description and reason to an existing incident after user provides more information\",\n  \"parameters\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"incident_id\": {\n        \"type\": \"string\",\n        \"description\": \"The incident UUID (short ID like abc12345)\"\n      },\n      \"detailed_description\": {\n        \"type\": \"string\",\n        \"description\": \"Full detailed description of what happened\"\n      },\n      \"reason\": {\n        \"type\": \"string\",\n        \"description\": \"The root cause or reason for the issue\"\n      }\n    },\n    \"required\": [\"incident_id\", \"detailed_description\", \"reason\"]\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        1024
+      ],
+      "id": "2fd6e943-26b4-432c-a28e-cbbc5664d07e",
+      "name": "Tool: Issue Details"
+    },
+    {
+      "parameters": {
+        "name": "check_incidents",
+        "description": "Report a general issue not linked to a specific task (vehicle breakdown, personal emergency, etc.)",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"name\": \"check_incidents\",\n  \"description\": \"HO ONLY: View all open incidents reported by team members\",\n  \"parameters\": {\n    \"type\": \"object\",\n    \"properties\": {},\n    \"required\": []\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1104,
+        1024
+      ],
+      "id": "681dc3bb-e989-425c-8094-bab26cb5d815",
+      "name": "Tool: Check incidents"
+    },
+    {
+      "parameters": {
+        "name": "resolve_issue",
+        "description": "Report a general issue not linked to a specific task (vehicle breakdown, personal emergency, etc.)",
+        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "responsePropertyName": "result",
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"name\": \"resolve_issue\",\n  \"description\": \"HO ONLY: Resolve an incident. If linked to a task, the task will be reopened. MR will be notified.\",\n  \"parameters\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"incident_id\": {\n        \"type\": \"string\",\n        \"description\": \"The incident UUID or short ID\"\n      },\n      \"resolution_notes\": {\n        \"type\": \"string\",\n        \"description\": \"How the issue was resolved\"\n      }\n    },\n    \"required\": [\"incident_id\", \"resolution_notes\"]\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        -288,
+        1248
+      ],
+      "id": "d92a0e50-d118-41f9-b21c-33aabf07ae25",
+      "name": "Tool: Resolve Issues"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a683a240-5a1d-4aa6-99c1-68b9a96001b0",
+              "leftValue": "={{ $json.messages[0] }}",
+              "rightValue": "is",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1216,
+        368
+      ],
+      "id": "48ce67e3-08f4-49ce-94fc-200be36b37f0",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth: Get User": {
+      "main": [
+        [
+          {
+            "node": "User Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Exists?": {
+      "main": [
+        [
+          {
+            "node": "Route: Message Type",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send: Access Denied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Message Type": {
+      "main": [
+        [
+          {
+            "node": "Check: Active Upload Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complete Upload Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Pending Quizzes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Quiz Answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check: Active Upload Session": {
+      "main": [
+        [
+          {
+            "node": "Has Active Session?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Active Session?": {
+      "main": [
+        [
+          {
+            "node": "Get Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send: No Active Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image URL": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Upload to Supabase Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Supabase Storage": {
+      "main": [
+        [
+          {
+            "node": "Save Image Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Image Record": {
+      "main": [
+        [
+          {
+            "node": "Update Image Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Upload Session": {
+      "main": [
+        [
+          {
+            "node": "Send: Upload Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Quizzes": {
+      "main": [
+        [
+          {
+            "node": "Has Pending Quizzes?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Pending Quizzes?": {
+      "main": [
+        [
+          {
+            "node": "Format Quiz List",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send: No Quizzes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Quiz List": {
+      "main": [
+        [
+          {
+            "node": "Send: Quiz List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Agent": {
+      "main": [
+        [
+          {
+            "node": "Send: Agent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Get Pending": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Update Work": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Tool: Check Team": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Remind Team": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: HCP Wish": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Start Upload": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Report Issue": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Tool: Issue Details": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Tool: Check incidents": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Tool: Resolve Issues": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Auth: Get User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fcdd6e29-7a75-49ec-9e9a-595c97c8ed75",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc7cbdbfad8d40a565225d9667a7a22dac2b6e5b51f0cb1fe88924f14c09b03d"
+  },
+  "id": "YVzq7zDfE2lb4XBe",
+  "tags": []
+}

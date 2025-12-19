@@ -1,0 +1,1458 @@
+{
+  "name": "Field Force Tools v3 - With Incidents",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        272
+      ],
+      "id": "f7039022-b65e-4573-8a53-6837d30188fc",
+      "name": "When Called by Agent"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "get_pending",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "update_work",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "check_team",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "remind_team",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "hcp_wish",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "start_upload",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "report_issue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "add_issue_details",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "check_incidents",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "resolve_issue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -416,
+        272
+      ],
+      "id": "7b241531-697c-4675-ac94-8ec8d505d0f3",
+      "name": "Route: Action"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, title, status, due_date, visit_notes, work_type FROM works WHERE assigned_to = $1 AND status IN ('Pending', 'Issue') ORDER BY status DESC, due_date ASC",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -160,
+        -880
+      ],
+      "id": "ca504261-acfd-4661-bd5a-1abcaf8c2c4f",
+      "name": "DB: Get Pending Works",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const tasks = $input.all();\n\nif (!tasks || tasks.length === 0 || !tasks[0].json.id) {\n  return [{ json: { result: '✅ *All Clear!*\\n\\nYou have no pending tasks at the moment. Great job! 🎉' } }];\n}\n\nlet message = `📋 *Your Tasks* (${tasks.length})\\n\\n───────────────────`;\n\ntasks.forEach(t => {\n  const task = t.json;\n  const dueDate = task.due_date ? new Date(task.due_date).toLocaleDateString('en-IN') : 'Not set';\n  const statusIcon = task.status === 'Issue' ? '🚨' : '📌';\n  message += `\\n\\n${statusIcon} *#${task.id}* - ${task.title}\\n📅 Due: ${dueDate}\\n📝 Status: _${task.status}_`;\n});\n\nmessage += '\\n\\n───────────────────\\n💡 _Commands:_\\n• \"Complete task #ID\" - Mark as done\\n• \"Report issue with #ID\" - Report a problem';\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        -1024
+      ],
+      "id": "51ede29c-27f0-4af7-a758-a8308a2d33fb",
+      "name": "Format: Pending Works"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.query.status }}",
+              "operation": "equals",
+              "value2": "Issue"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -688
+      ],
+      "id": "7434a6a8-c24a-4b17-a64e-80abaa151308",
+      "name": "Is Issue Report?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE works SET status = 'Completed', visit_notes = COALESCE(visit_notes, '') || E'\\n' || $2, completion_date = NOW() WHERE id = $1 AND assigned_to = $3 RETURNING id, title, target_id",
+        "options": {
+          "queryReplacement": "={{ [parseInt($json.query.work_id), $json.query.notes || 'Completed via WhatsApp', $json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        128,
+        -640
+      ],
+      "id": "fe3b2c80-4bbb-4572-9ab4-71fd1cb405d5",
+      "name": "DB: Complete Work",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first();\n\nif (!result || !result.json.id) {\n  return [{ json: { result: '❌ *Update Failed*\\n\\nTask not found or you don\\'t have permission to update it.\\n\\nUse \"show my tasks\" to see your available tasks.' } }];\n}\n\nconst task = result.json;\nconst now = new Date().toLocaleDateString('en-IN');\n\nlet message = `✅ *Task Completed!*\\n\\n*Task ID:* #${task.id}\\n*Title:* ${task.title}\\n*Completed at:* ${now}`;\n\nif (task.target_id) {\n  message += `\\n\\n📊 _Your doctor visit target progress has been updated!_`;\n}\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -640
+      ],
+      "id": "de379186-2812-4a52-bbfd-9b7acb1f411e",
+      "name": "Format: Complete Result"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT create_incident_from_work($1, $2, $3, $4, $5) as incident_id",
+        "options": {
+          "queryReplacement": "={{ [parseInt($json.query.work_id), $json.user_id, $json.user_phone, $json.query.issue_type || 'other', $json.query.issue_description || $json.query.notes || 'Issue reported'] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        128,
+        -864
+      ],
+      "id": "44ede27b-b632-48ed-81bf-88e306949015",
+      "name": "DB: Create Work Incident",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first();\nconst incidentId = result.json.incident_id;\nconst issueType = $('When Called by Agent').item.json.query.issue_type || 'other';\nconst description = $('When Called by Agent').item.json.query.issue_description || $('When Called by Agent').item.json.query.notes || 'Issue reported';\n\nconst issueTypeLabels = {\n  'stock_empty': 'Stock Empty',\n  'doctor_unavailable': 'Doctor Unavailable',\n  'clinic_closed': 'Clinic Closed',\n  'transport_issue': 'Transport Issue',\n  'weather_issue': 'Weather Issue',\n  'documentation_missing': 'Documentation Missing',\n  'other': 'Other Issue'\n};\n\nconst message = `⚠️ *Issue Reported*\\n\\n*Issue Type:* ${issueTypeLabels[issueType] || issueType}\\n*Description:* ${description}\\n*Incident ID:* #${incidentId.substring(0, 8)}\\n\\nYour task is now marked as *Issue* and your manager has been notified.\\n\\n───────────────────\\n📝 *Please provide more details:*\\n- What exactly happened?\\n- What caused this issue?`;\n\nreturn [{ json: { result: message, incident_id: incidentId, needs_followup: true } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -864
+      ],
+      "id": "3bdfdd5a-16dc-4484-8c37-3a45fbef8b0a",
+      "name": "Format: Issue Created"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT create_standalone_incident($1, $2, $3, $4) as incident_id",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id, $json.user_phone, $json.query.issue_type || 'other', $json.query.description] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        192,
+        544
+      ],
+      "id": "cd57a1d3-c772-4a92-a3b3-51eb5ce328bf",
+      "name": "DB: Create Standalone Incident",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first();\nconst incidentId = result.json.incident_id;\nconst issueType = $('When Called by Agent').item.json.query.issue_type || 'other';\nconst description = $('When Called by Agent').item.json.query.description;\n\nconst issueTypeLabels = {\n  'stock_empty': 'Stock Empty',\n  'doctor_unavailable': 'Doctor Unavailable',\n  'clinic_closed': 'Clinic Closed',\n  'transport_issue': 'Transport Issue',\n  'weather_issue': 'Weather Issue',\n  'medical_leave': 'Medical Leave',\n  'documentation_missing': 'Documentation Missing',\n  'other': 'Other Issue'\n};\n\nconst message = `⚠️ *Issue Reported*\\n\\n*Type:* ${issueTypeLabels[issueType] || issueType}\\n*Description:* ${description}\\n*Incident ID:* #${incidentId.substring(0, 8)}\\n\\nYour manager has been notified.\\n\\n───────────────────\\n📝 *Please provide more details:*\\n- What exactly happened?\\n- What caused this issue?`;\n\nreturn [{ json: { result: message, incident_id: incidentId, needs_followup: true } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        464
+      ],
+      "id": "3d7b4e49-745f-4368-97e3-4a9d2b362e42",
+      "name": "Format: Standalone Incident"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT add_incident_details($1, $2, $3) as success",
+        "options": {
+          "queryReplacement": "={{ [$json.query.incident_id, $json.query.detailed_description, $json.query.reason] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -16,
+        656
+      ],
+      "id": "0b03e933-faae-46f2-b47d-2a2e812e60db",
+      "name": "DB: Add Incident Details",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const success = $input.first().json.success;\n\nif (success) {\n  return [{ json: { result: '✅ *Issue Details Saved*\\n\\nThank you for providing the details. Your manager will review this and take necessary action.\\n\\n*Status:* In Review 🔍' } }];\n} else {\n  return [{ json: { result: '❌ *Failed to Save Details*\\n\\nCould not find the incident. Please try reporting the issue again.' } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        688
+      ],
+      "id": "b7040118-e6ef-490d-a7e6-a1e2bc7ea9ba",
+      "name": "Format: Details Added"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT incident_id, work_id, work_title, incident_type, short_description, mr_name, mr_phone, status, priority, ROUND(hours_open::numeric, 1) as hours_open FROM v_open_incidents WHERE ho_id = $1 ORDER BY hours_open DESC",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -80,
+        896
+      ],
+      "id": "8c9ce73f-8601-497a-9e99-3793c06b23c8",
+      "name": "DB: Check Incidents",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incidents = $input.all();\n\nif (!incidents || incidents.length === 0 || !incidents[0].json.incident_id) {\n  return [{ json: { result: '✅ *No Open Incidents*\\n\\nAll issues have been resolved. Great job managing your team! 🎉' } }];\n}\n\nconst issueTypeLabels = {\n  'stock_empty': '📦 Stock Empty',\n  'doctor_unavailable': '👨‍⚕️ Doctor N/A',\n  'clinic_closed': '🏥 Clinic Closed',\n  'transport_issue': '🚗 Transport',\n  'weather_issue': '🌧️ Weather',\n  'medical_leave': '🏥 Medical',\n  'documentation_missing': '📄 Docs Missing',\n  'other': '❓ Other'\n};\n\nconst priorityIcons = {\n  'critical': '🔴',\n  'high': '🟠',\n  'medium': '🟡',\n  'low': '🟢'\n};\n\nlet message = `🚨 *Open Incidents* (${incidents.length})\\n\\n───────────────────`;\n\nincidents.forEach((item, index) => {\n  const i = item.json;\n  const typeLabel = issueTypeLabels[i.incident_type] || i.incident_type;\n  const priorityIcon = priorityIcons[i.priority] || '🟡';\n  \n  message += `\\n\\n*#${index + 1}* ${typeLabel}`;\n  message += `\\n👤 ${i.mr_name}`;\n  message += i.work_title ? `\\n📌 ${i.work_title}` : `\\n📌 General Issue`;\n  message += `\\n📝 ${i.short_description.substring(0, 40)}...`;\n  message += `\\n⏱️ ${i.hours_open}h | ${priorityIcon} ${i.priority}`;\n  message += `\\n🔑 _${i.incident_id.substring(0, 8)}_`;\n});\n\nmessage += '\\n\\n───────────────────\\n💡 _Say \"resolve [ID] - [notes]\"_';\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        880
+      ],
+      "id": "88bbb06c-b669-4acb-993e-ec2fa815b1f8",
+      "name": "Format: Incidents List"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM resolve_incident($1, $2, $3)",
+        "options": {
+          "queryReplacement": "={{ [$json.query.incident_id, $json.user_id, $json.query.resolution_notes] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -368,
+        1056
+      ],
+      "id": "332ea4f4-e967-4877-9c28-9703aa79910e",
+      "name": "DB: Resolve Incident",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nconst resolutionNotes = $('When Called by Agent').item.json.query.resolution_notes;\n\nlet message = `✅ *Incident Resolved*\\n\\n*Resolution:* ${resolutionNotes}`;\n\nif (result.out_work_id) {\n  message += `\\n\\n📌 *Task Reopened:* ${result.out_work_title || 'Task #' + result.out_work_id}`;\n  message += `\\n👤 ${result.out_mr_name}`;\n  message += `\\n\\n_MR will be notified via WhatsApp._`;\n}\n\nreturn [{ \n  json: { \n    result: message,\n    notify_mr: result.out_mr_phone ? true : false,\n    mr_phone: result.out_mr_phone,\n    mr_name: result.out_mr_name,\n    work_title: result.out_work_title,\n    resolution_notes: resolutionNotes\n  } \n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        1056
+      ],
+      "id": "3e0bee6d-9993-424f-91e0-7eb55a5c5d2e",
+      "name": "Format: Resolved"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.notify_mr }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        416,
+        1184
+      ],
+      "id": "aeaf7b8d-bf96-4824-9aee-a26057dca71e",
+      "name": "Should Notify MR?"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $json.mr_phone }}",
+        "textBody": "=✅ *Issue Resolved*\n\nGreat news! Your reported issue has been resolved.\n\n*Task:* {{ $json.work_title || 'General Issue' }}\n*Resolution:* {{ $json.resolution_notes }}\n\n{{ $json.work_title ? 'The task has been reopened to *Pending*. Please proceed with completing it.' : '' }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        1120
+      ],
+      "id": "a1ab44b0-fdd5-4404-ba41-2c2f8ebd39de",
+      "name": "Send: Notify MR",
+      "webhookId": "991a2a8b-2a33-4f6d-a948-fd72e755f3e4",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT s.first_name, s.last_name, w.id as task_id, w.title, w.status, w.due_date FROM works w JOIN staff s ON w.assigned_to = s.id WHERE s.reporting_to = $1 AND w.status IN ('Pending', 'Issue') ORDER BY w.status DESC, w.due_date ASC",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -80,
+        -400
+      ],
+      "id": "6662e2a6-b8dd-4dfa-8071-85e211469239",
+      "name": "DB: Check Team Status",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0 || !items[0].json.task_id) {\n  return [{ json: { result: '✅ *Team Status: All Clear!*\\n\\nAll team members have completed their tasks. 🎉' } }];\n}\n\nlet message = `👥 *Team Tasks* (${items.length})\\n\\n───────────────────`;\n\nitems.forEach(item => {\n  const i = item.json;\n  const dueDate = i.due_date ? new Date(i.due_date).toLocaleDateString('en-IN') : 'Not set';\n  const statusIcon = i.status === 'Issue' ? '🚨' : '📌';\n  message += `\\n\\n👤 *${i.first_name} ${i.last_name || ''}*\\n   ${statusIcon} ${i.title}\\n   📅 Due: ${dueDate}\\n   Status: _${i.status}_`;\n});\n\nmessage += '\\n\\n───────────────────\\n💡 _\"remind team\" | \"check incidents\"_';\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -400
+      ],
+      "id": "1f581ca8-a234-46b4-a424-0287af22cdc1",
+      "name": "Format: Team Status"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT t.id as task_id, t.target_amount, t.month, t.area, t.status, t.doctors_visit_target, t.doctors_visited, s.\"Phone_number\", s.first_name, s.last_name FROM targets t JOIN staff s ON t.mr_id = s.id WHERE t.status = 'Pending' AND s.reporting_to = $1 AND t.month ILIKE '%' || $2 || '%'",
+        "options": {
+          "queryReplacement": "={{ [$json.ho_id, $json.query.filter_value || ''] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        -192
+      ],
+      "id": "997d6e26-6afc-4533-b485-d68489bd4f09",
+      "name": "DB: Get Targets to Remind",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -192
+      ],
+      "id": "e9e76fef-b443-4849-b712-0f81c44b4555",
+      "name": "Has Targets?"
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        496,
+        -368
+      ],
+      "id": "02feb653-2cca-4426-908e-2b88b6384950",
+      "name": "Batch: 5 at a time"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $json.Phone_number }}",
+        "textBody": "=🔔 *Reminder*\n\nHello {{ $json.first_name }},\n\nPending target for *{{ $json.month_year }}* in *{{ $json.area }}*:\n\n📊 Amount: {{ $json.target_amount }}\n👨‍⚕️ Visits: {{ $json.doctors_visited }}/{{ $json.doctors_visit_target }}\n\n📝 {{ $('When Called by Agent').item.json.query.note || 'Please complete your targets.' }}\n\n_- Your Manager_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        -240
+      ],
+      "id": "628fd54d-a58f-4ef0-bb15-3ed3bc487d11",
+      "name": "Send: Reminder to MR",
+      "webhookId": "3d592b1a-6fc9-4023-9986-673aeaebbe2e",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        -240
+      ],
+      "id": "047d9a0a-3a22-4786-8f7a-6c1b3bc2dd88",
+      "name": "Delay: 1 second",
+      "webhookId": "6dae1a58-a8eb-4427-9014-d7fd1afcdc5c"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst count = items.length;\nreturn [{ json: { result: `✅ *Reminders Sent*\\n\\n*${count}* team members notified about their pending targets.` } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        -384
+      ],
+      "id": "8d8adb5a-66ad-4a47-b045-6367d7dba7dc",
+      "name": "Aggregate: Results"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "no-targets",
+              "name": "result",
+              "value": "⚠️ *No Matching Targets*\\n\\nNo team members found with pending targets for this period.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        16
+      ],
+      "id": "89c4d900-1e89-4fe7-9ec6-c0a9b6869fec",
+      "name": "Set: No Targets"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT w.image_url, w.event_name, d.name as doctor_name, d.specialty FROM wish_templates w, doctors d WHERE w.event_name ILIKE '%' || $1 || '%' AND d.name ILIKE '%' || $2 || '%' AND w.is_active = true LIMIT 1",
+        "options": {
+          "queryReplacement": "={{ [$json.query.event_name, $json.query.doctor_name] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -80,
+        144
+      ],
+      "id": "2dd4e358-ea44-43bc-a190-4d3228aa5cbe",
+      "name": "DB: Get Wish Template",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.image_url }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        128,
+        112
+      ],
+      "id": "567e56e7-b1d8-4236-8d38-03647f657ad1",
+      "name": "Has Template?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wish-fail",
+              "name": "result",
+              "value": "❌ *Not Found*\\n\\nCouldn't find matching wish template or doctor. Check event name and doctor name.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        208
+      ],
+      "id": "f681a1b0-26d3-4a86-9d43-e749ed58aabf",
+      "name": "Set: Not Found"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO upload_sessions (mr_phone, campaign_name, status, image_count, started_at, expires_at) VALUES ($1, $2, 'active', 0, NOW(), NOW() + INTERVAL '2 minutes') ON CONFLICT (mr_phone) WHERE status = 'active' DO UPDATE SET campaign_name = $2, image_count = 0, started_at = NOW(), expires_at = NOW() + INTERVAL '2 minutes' RETURNING id, campaign_name",
+        "options": {
+          "queryReplacement": "={{ [$json.user_phone, $json.query.campaign_name] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        400
+      ],
+      "id": "5d2ab91f-199e-42dc-90a0-7d7ca9297197",
+      "name": "DB: Start Upload Session",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first();\nconst campaign = result?.json?.campaign_name || 'Unknown';\n\nconst message = `📸 *Upload Session Started*\\n\\n*Campaign:* ${campaign}\\n*Duration:* 2 minutes\\n\\nSend your images now.\\nType *\"over\"* when done.`;\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        352
+      ],
+      "id": "a6f52afb-5b05-4203-a22b-2bfc5c2a88dc",
+      "name": "Format: Session Started"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { result: $json.image_url } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        32
+      ],
+      "id": "3444ffe5-4102-49d5-aae5-a0202f516065",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1552,
+        80
+      ],
+      "id": "ebf8d802-4ca9-46cc-830e-6e7883a3b1fb",
+      "name": "Download: Wish Image"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "phoneNumberId": "715904891617490",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        80
+      ],
+      "id": "72bfdb6b-9db8-40a6-9a61-704c2b5ba03f",
+      "name": "Upload: To WhatsApp",
+      "webhookId": "1c7f2205-6d9b-48de-9a0a-98b01fba8673",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-exp",
+          "mode": "list"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write a short, warm WhatsApp message for a Medical Representative to send to {{ $('DB: Get Wish Template1').item.json.doctor_name }} ({{ $('DB: Get Wish Template1').item.json.specialty }}) wishing them a happy {{ $('DB: Get Wish Template1').item.json.event_name }}.\\n\\nRules:\\n- Keep it professional but warm\\n- Max 3 sentences\\n- DO NOT include any placeholder text like [Your Name] or [Company]\\n- DO NOT include any URLs or links\\n- Use appropriate emoji (1-2 max)"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        2032,
+        80
+      ],
+      "id": "bc1684c7-7184-4952-bc05-10ca1f0e0a83",
+      "name": "Generate: Wish Message",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qIhHDGvUu6kDNRJk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('When Called by Agent').item.json.chat_id }}",
+        "messageType": "image",
+        "mediaPath": "useMediaId",
+        "mediaId": "={{ $('Upload: To WhatsApp').item.json.id }}",
+        "additionalFields": {
+          "mediaCaption": "={{ $json.content?.parts?.[0]?.text || $json.text || 'Warm wishes!' }}"
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2416,
+        80
+      ],
+      "id": "960a9018-9047-412c-8db7-ced0b8d4664e",
+      "name": "Send: Wish Image to MR",
+      "webhookId": "02eb4a81-6803-4f6d-a542-3aea11e3b89a",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wish-success",
+              "name": "result",
+              "value": "✅ *Wish Template Sent*\\n\\nThe wish image has been sent above. You can forward it to the respective doctor.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2624,
+        80
+      ],
+      "id": "8c148c02-795c-4ff3-adad-ed295cb6a575",
+      "name": "Set: Wish Success"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wish-fail",
+              "name": "result",
+              "value": "❌ *Template Not Found*\\n\\nSorry, I couldn't find a matching wish template or doctor.\\n\\nPlease check:\\n• Event name (e.g., Diwali, Christmas, Birthday)\\n• Doctor name spelling",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1552,
+        288
+      ],
+      "id": "18a63be1-d30e-486d-a933-7558b0dc37d6",
+      "name": "Set: Wish Not Found"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT w.image_url, w.event_name, d.name as doctor_name, d.specialty FROM wish_templates w, doctors d WHERE w.event_name ILIKE '%' || $1 || '%' AND d.name ILIKE '%' || $2 || '%' AND w.is_active = true LIMIT 1",
+        "options": {
+          "queryReplacement": "={{ [$json.query.event_name, $json.query.doctor_name] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1008,
+        80
+      ],
+      "id": "91dba6d1-070b-486c-ad0a-838f4368ebf0",
+      "name": "DB: Get Wish Template1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.image_url }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        96
+      ],
+      "id": "5419c81c-e9d9-4405-b8a1-6043778fef5f",
+      "name": "Has Template?1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Called by Agent": {
+      "main": [
+        [
+          {
+            "node": "Route: Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Action": {
+      "main": [
+        [
+          {
+            "node": "DB: Get Pending Works",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Issue Report?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Check Team Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Get Targets to Remind",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Get Wish Template1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Start Upload Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Create Standalone Incident",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Add Incident Details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Check Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Resolve Incident",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Pending Works": {
+      "main": [
+        [
+          {
+            "node": "Format: Pending Works",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Issue Report?": {
+      "main": [
+        [
+          {
+            "node": "DB: Create Work Incident",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Complete Work",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Complete Work": {
+      "main": [
+        [
+          {
+            "node": "Format: Complete Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Create Work Incident": {
+      "main": [
+        [
+          {
+            "node": "Format: Issue Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Create Standalone Incident": {
+      "main": [
+        [
+          {
+            "node": "Format: Standalone Incident",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Add Incident Details": {
+      "main": [
+        [
+          {
+            "node": "Format: Details Added",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Check Incidents": {
+      "main": [
+        [
+          {
+            "node": "Format: Incidents List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Resolve Incident": {
+      "main": [
+        [
+          {
+            "node": "Format: Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Resolved": {
+      "main": [
+        [
+          {
+            "node": "Should Notify MR?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Notify MR?": {
+      "main": [
+        [
+          {
+            "node": "Send: Notify MR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Check Team Status": {
+      "main": [
+        [
+          {
+            "node": "Format: Team Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Targets to Remind": {
+      "main": [
+        [
+          {
+            "node": "Has Targets?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Targets?": {
+      "main": [
+        [
+          {
+            "node": "Batch: 5 at a time",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: No Targets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch: 5 at a time": {
+      "main": [
+        [
+          {
+            "node": "Aggregate: Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send: Reminder to MR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: Reminder to MR": {
+      "main": [
+        [
+          {
+            "node": "Delay: 1 second",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay: 1 second": {
+      "main": [
+        [
+          {
+            "node": "Batch: 5 at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Wish Template": {
+      "main": [
+        [
+          {
+            "node": "Has Template?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Template?": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Start Upload Session": {
+      "main": [
+        [
+          {
+            "node": "Format: Session Started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download: Wish Image": {
+      "main": [
+        [
+          {
+            "node": "Upload: To WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload: To WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Generate: Wish Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate: Wish Message": {
+      "main": [
+        [
+          {
+            "node": "Send: Wish Image to MR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: Wish Image to MR": {
+      "main": [
+        [
+          {
+            "node": "Set: Wish Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Wish Template1": {
+      "main": [
+        [
+          {
+            "node": "Has Template?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Template?1": {
+      "main": [
+        [
+          {
+            "node": "Download: Wish Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Wish Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bc43b46a-bba3-4d6a-9beb-5473d6e99db4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc7cbdbfad8d40a565225d9667a7a22dac2b6e5b51f0cb1fe88924f14c09b03d"
+  },
+  "id": "0OsDz4Y6p2UbNA8I",
+  "tags": []
+}

@@ -1,5 +1,5 @@
 {
-  "name": "Field Force AI Agent (Main) - Redesigned",
+  "name": "Field Force AI Agent (Main) - v4",
   "nodes": [
     {
       "parameters": {
@@ -14,9 +14,9 @@
         -1424,
         368
       ],
-      "id": "6bde407a-0c47-427b-88d4-1bf20cc4f4c8",
+      "id": "81ab7cb4-802b-483d-9263-08c3e8af1e92",
       "name": "WhatsApp Trigger",
-      "webhookId": "field-force-main-webhook",
+      "webhookId": "2e3b579d-8454-45ba-9c7a-d69490490e2a",
       "credentials": {
         "whatsAppTriggerApi": {
           "id": "9vyODNS0sSaAtK9R",
@@ -43,7 +43,7 @@
         -976,
         368
       ],
-      "id": "9a835259-dd8b-49df-b371-bacab1020086",
+      "id": "adc05a3c-bebf-492e-a5da-47f67a46c5b1",
       "name": "Auth: Get User",
       "retryOnFail": false,
       "maxTries": 3,
@@ -72,7 +72,7 @@
         -736,
         368
       ],
-      "id": "0e45f38a-a8f8-4c71-b389-bdaf2a9204ab",
+      "id": "326e426b-036f-434c-98ab-0655614011b7",
       "name": "User Exists?"
     },
     {
@@ -89,9 +89,9 @@
         -528,
         688
       ],
-      "id": "d0ec9c56-2696-4967-a433-509e03fc401d",
+      "id": "be74e915-1260-4368-819d-3d3f917ec324",
       "name": "Send: Access Denied",
-      "webhookId": "9706b583-1333-4ce2-bc80-136ba26b452b",
+      "webhookId": "741c9f01-0cc5-40b9-bb8d-0f4aa32bc500",
       "credentials": {
         "whatsAppApi": {
           "id": "wLCoVuFQaFkfB8l2",
@@ -225,7 +225,7 @@
         -496,
         240
       ],
-      "id": "92476b9c-bb53-40cb-8e37-eec23b850043",
+      "id": "613e2f93-9c6c-4115-b32a-3224f4bda557",
       "name": "Route: Message Type"
     },
     {
@@ -242,7 +242,7 @@
         -176,
         -288
       ],
-      "id": "ddffd08f-1ea4-4179-a2cc-6b281d644192",
+      "id": "b0c8e944-fe25-4644-ba84-a57fecb049aa",
       "name": "Check: Active Upload Session",
       "credentials": {
         "postgres": {
@@ -268,7 +268,7 @@
         80,
         -80
       ],
-      "id": "cdf95b71-d244-482c-8e13-727f46c82278",
+      "id": "eb472eb1-23b6-4c78-8d62-ff2cd7bd58c1",
       "name": "Has Active Session?"
     },
     {
@@ -283,9 +283,9 @@
         320,
         -192
       ],
-      "id": "46c8067d-39d4-45e6-8eac-b059c6af4838",
+      "id": "31aac231-8cbc-4708-b6f5-2807c32c6d78",
       "name": "Get Image URL",
-      "webhookId": "9ee4cefe-8a83-4524-bad6-fe032f365ed4",
+      "webhookId": "7a363ac0-be75-4887-b5b9-6f0f43a31ed5",
       "credentials": {
         "whatsAppApi": {
           "id": "wLCoVuFQaFkfB8l2",
@@ -312,7 +312,7 @@
         560,
         -192
       ],
-      "id": "2d0d7498-b956-4ce0-8174-acf28b2e889f",
+      "id": "a70bd41f-144a-4a28-a1f7-068bb8fb7fb6",
       "name": "Download Image",
       "credentials": {
         "httpHeaderAuth": {
@@ -347,7 +347,7 @@
         800,
         -192
       ],
-      "id": "eaba14b0-3fbd-483e-ab92-f394c431b0fc",
+      "id": "ac70c094-4f75-46a5-9074-91d518da5430",
       "name": "Upload to Supabase Storage",
       "credentials": {
         "httpHeaderAuth": {
@@ -370,7 +370,7 @@
         1040,
         -192
       ],
-      "id": "89e05f25-02d9-4750-8663-0cee76ed5f17",
+      "id": "6d0ac286-dd5c-4068-96a8-3e2dd190d6d6",
       "name": "Save Image Record",
       "credentials": {
         "postgres": {
@@ -393,7 +393,7 @@
         1280,
         -192
       ],
-      "id": "f1bf2c81-7406-44fd-8338-41356c0ce2cc",
+      "id": "a27cea15-6198-48fd-8ecd-486489e2d586",
       "name": "Update Image Count",
       "credentials": {
         "postgres": {
@@ -416,9 +416,9 @@
         448,
         48
       ],
-      "id": "b110153d-4999-4782-bea2-1c5f3c984a4c",
+      "id": "d96d1239-0796-4e2e-a2e9-3c81a17e4ad1",
       "name": "Send: No Active Session",
-      "webhookId": "53e1e85e-aabe-4d6b-af16-a00ce90add88",
+      "webhookId": "c0a05299-acbb-439b-8c13-4ff881e8a8cf",
       "credentials": {
         "whatsAppApi": {
           "id": "wLCoVuFQaFkfB8l2",
@@ -440,7 +440,7 @@
         -176,
         32
       ],
-      "id": "9bbe0a5a-1998-4784-acd4-0f8f819f53a6",
+      "id": "02b0ee0c-5564-4a1a-ada2-f1a524bd72b9",
       "name": "Complete Upload Session",
       "credentials": {
         "postgres": {
@@ -463,9 +463,9 @@
         96,
         128
       ],
-      "id": "cef8f7d9-1082-47ac-a47c-98b424087e79",
+      "id": "3e2f9acf-9436-4929-ad9f-54de17643021",
       "name": "Send: Upload Complete",
-      "webhookId": "f6bb590e-a7ce-4c14-869b-d91b8fef1962",
+      "webhookId": "e14a0c7c-416f-4317-8c99-d6d4980c428e",
       "credentials": {
         "whatsAppApi": {
           "id": "wLCoVuFQaFkfB8l2",
@@ -487,7 +487,7 @@
         -176,
         272
       ],
-      "id": "aae3dd36-8c2b-4fcb-a396-95f62a2e6c69",
+      "id": "fd7cbc25-5d43-4075-adb7-2ff6690efab3",
       "name": "Get Pending Quizzes",
       "credentials": {
         "postgres": {
@@ -513,7 +513,7 @@
         96,
         368
       ],
-      "id": "c0e07b97-03c6-4f86-b220-4543859bce43",
+      "id": "82a4960e-fb39-4266-9d34-3042654ee0a1",
       "name": "Has Pending Quizzes?"
     },
     {
@@ -526,7 +526,7 @@
         464,
         272
       ],
-      "id": "0a84227a-4cc1-4d3d-8335-4e9a6977c3ff",
+      "id": "a531ec4d-3a6f-48cc-a901-5a3595ea8dbf",
       "name": "Format Quiz List"
     },
     {
@@ -543,9 +543,9 @@
         800,
         272
       ],
-      "id": "d742c868-0ae7-4cd8-abe4-7731eaa0f049",
+      "id": "0eeb74b0-0aac-43cd-9214-d51bf1290d9e",
       "name": "Send: Quiz List",
-      "webhookId": "132c932d-ec6e-4c44-b24f-5090588ea0f1",
+      "webhookId": "4ad821cf-0b00-4c94-bd3c-bf6b8e6ff0f3",
       "credentials": {
         "whatsAppApi": {
           "id": "wLCoVuFQaFkfB8l2",
@@ -567,9 +567,9 @@
         512,
         464
       ],
-      "id": "3bb3275b-7bfd-45de-9d5d-d6feb2cde0ff",
+      "id": "98faa487-7424-4bc0-91e0-ae13d20fdc7d",
       "name": "Send: No Quizzes",
-      "webhookId": "93ddd924-8743-40f9-9c8a-c24af1e2a79f",
+      "webhookId": "b5b4b46e-cb7a-42f2-b170-3b18031d4a6a",
       "credentials": {
         "whatsAppApi": {
           "id": "wLCoVuFQaFkfB8l2",
@@ -579,24 +579,10 @@
     },
     {
       "parameters": {
-        "workflowId": "quiz-answer-handler",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [
-        -176,
-        496
-      ],
-      "id": "e42c758c-e553-4b84-beff-d2afb5c739b7",
-      "name": "Handle Quiz Answer"
-    },
-    {
-      "parameters": {
         "promptType": "define",
         "text": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
         "options": {
-          "systemMessage": "=You are a Field Force Assistant for Medical Representatives (MR) and Head Officers (HO).\n\nCurrent Date: {{ $now.format('YYYY-MM-DD') }}\nUser: {{ $('Auth: Get User').item.json.first_name }} {{ $('Auth: Get User').item.json.last_name }}\nUser ID: {{ $('Auth: Get User').item.json.id }}\nRole: {{ $('Auth: Get User').item.json.role }}\nPhone: {{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}\n\n## AVAILABLE TOOLS:\n\n### For ALL Users (MR & HO):\n\n1. **hcp_wish** - If the user asks to create a event based greeting or wish, you MUST call the HCP Wish tool, don't generate any wish tool using gemini ai model\n   - Use when: \"wish for X\", \"a festival related wish\", \"birthday message\" ,\"create a wish message for X\", \"generate a wish message\"\n   - REQUIRED: event_name and doctor_name\n\n2. **get_pending_works** - Get user's own pending tasks\n   - Use when: \"my pending tasks\", \"what's pending\", \"my work\"\n   \n3. **update_work_status** - Update a task to completed\n   - Use when: \"update task #X\", \"completed #X\", \"mark #X done\"\n   - REQUIRED: task id and notes\n\n4. **start_upload_session** - Start image upload session for prescriptions\n   - Use when: \"upload images for X campaign\", \"send prescription images\"\n   - REQUIRED: campaign_name\n   - Response: Session started, user can send images\n\n### For HO Only:\n5. **check_team_status** - Check team members' pending work\n   - Use when: \"team status\", \"my team's work\", \"who hasn't completed\"\n   - BLOCK if role is MR\n   \n6. **remind_team** - Send reminders to team about targets\n   - Use when: \"remind team\", \"send reminder to MRs\"\n   - REQUIRED: filter_type (month/area), filter_value, note\n   - BLOCK if role is MR\n\n## RULES:\n1. NEVER ask for user ID - you have it\n2. If role is 'MR', DENY access to check_team_status and remind_team\n3. For quiz-related queries, tell user to type \"start quiz\"\n4. Keep responses concise and use WhatsApp formatting (*bold*, _italic_)\n5. When listing tasks, always show task ID prominently\n6. For image uploads, ONLY start session - don't process images\n\n## RESPONSE FORMAT:\n- Use emojis sparingly but appropriately\n- Use *bold* for important info\n- Use bullet points for lists\n- Keep messages under 500 characters when possible\n\n## INCIDENT MANAGEMENT\n\nWhen user reports a task-specific issue:\n1. Use update_work with status=\"Issue\", include issue_type and issue_description\n2. After the tool responds, ASK for more details:\n   - \"Can you tell me more about what happened?\"\n   - \"What caused this issue?\"\n3. When user provides details, use add_issue_details\n\nWhen user reports a general issue (not task-related):\n1. Use report_issue with issue_type and description  \n2. ASK for more details\n3. Use add_issue_details when they respond\n\nFor HO users:\n- check_incidents: Shows all open issues from team\n- resolve_issue: Resolves issue and reopens task if linked\n\n## ISSUE TYPES\n- stock_empty: Product/sample stock unavailable\n- doctor_unavailable: Doctor not at clinic\n- clinic_closed: Clinic was closed\n- transport_issue: Vehicle breakdown\n- weather_issue: Bad weather\n- medical_leave: MR health issues\n- documentation_missing: Required docs unavailable\n- other: Any other issue\n\n## IMPORTANT\n- After creating ANY incident, always ask for more details\n- Remember the incident_id from the response to use with add_issue_details\n- Be empathetic when users report issues"
+          "systemMessage": "=You are a Field Force Assistant for Medical Representatives (MR) and Head Officers (HO).\n\nCurrent Date: {{ $now.format('YYYY-MM-DD') }} \nUser: {{ $('Auth: Get User').item.json.first_name }} {{ $('Auth: Get User').item.json.last_name }}\nUser ID: {{ $('Auth: Get User').item.json.id }}\nRole: {{ $('Auth: Get User').item.json.role }}\nPhone: {{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}\n\n## AVAILABLE TOOLS:\n\n### For ALL Users (MR & HO):\n\n1. **hcp_wish** - If the user asks to create a event based greeting or wish, you MUST call the HCP Wish tool, don't generate any wish tool using gemini ai model\n   - Use when: \"wish for X\", \"a festival related wish\", \"birthday message\" ,\"create a wish message for X\", \"generate a wish message\"\n   - REQUIRED: event_name and doctor_name\n\n2. **get_pending_works** - Get user's own pending tasks\n   - Use when: \"my pending targets\", \"what's pending\", \"my work\"\n   \n3. **update_work_status** - Update user's current month's target progress.\n\n  Parameters:\n    - update_type (required): \"amount\" or \"visits\"\n      - \"amount\" = Update sales amount achieved (in rupees)\n      - \"visits\" = Update doctors visited count\n    - value (required): The NEW total value (not increment)\n\n  Examples:\n  - Update sales: {\"action\": \"update_target\", \"query\": {\"update_type\": \"amount\", \"value\": 35000}}\n  - Update visits: {\"action\": \"update_target\", \"query\": {\"update_type\": \"visits\", \"value\": 12}}\n  \n  Note: This sets the TOTAL value, not adds to it. \n  If MR says \"I visited 3 more doctors\" and current is 5, use value: 8\n  If MR says \"My sales are now 35000\", use value: 35000\n  \n  \n  Update a target to completed\n     - Use when: \"update target #X\", \"completed #X\", \"mark #X done\"\n\n4. **start_upload_session** - Start image upload session for prescriptions\n   - Use when: \"upload images for X campaign\", \"send prescription images\"\n   - REQUIRED: campaign_name\n   - Response: Session started, user can send images\n\n### For HO Only:\n5. **check_team_status** - Check team members' pending work\n   - Use when: \"team status\", \"my team's work\", \"who hasn't completed\"\n   - BLOCK if role is MR\n   \n6. **remind_team** - Send reminders to team members about pending targets.\n  Parameters:\n    - remind_type (optional): \"amount\", \"visits\", or \"all\" (default)\n      - \"amount\" = Only MRs with pending sales targets\n      - \"visits\" = Only MRs with pending doctor visit targets\n      - \"all\" = All MRs with any pending target\n  - filter_type (optional): \"month\" or \"area\" for additional filtering\n  - filter_value (optional): Value for filter (e.g., \"December\", \"Chennai\")\n  - note (optional): Custom message to include in reminder\n\n    Examples:\n    - Remind my team with the targets for doctor visits\n    - Remind my team with the targers for amounts to achieve\n    - Remind about visits: {\"action\": \"remind_team\", \"query\": {\"remind_type\": \"visits\"}}\n    - Remind my team for the December targets\n    - Remind all with note: {\"action\": \"remind_team\", \"query\": {\"remind_type\": \"all\", \"note\": \"Month-end deadline approaching!\"}}\n\n## RULES:\n1. NEVER ask for user ID - you have it\n2. If role is 'MR', DENY access to check_team_status and remind_team\n3. For quiz-related queries, tell user to type \"start quiz\"\n4. Keep responses concise and use WhatsApp formatting (*bold*, _italic_)\n5. When listing targets, always show targets ID prominently\n6. For image uploads, ONLY start session - don't process images\n\n## RESPONSE FORMAT:\n- Use emojis sparingly but appropriately\n- Use *bold* for important info\n- Use bullet points for lists\n- Keep messages under 500 characters when possible\n\n## INCIDENT MANAGEMENT\n\nWhen user reports a task-specific issue:\n1. Use update_work with status=\"Issue\", include issue_type and issue_description\n2. After the tool responds, ASK for more details:\n   - \"Can you tell me more about what happened?\"\n   - \"What caused this issue?\"\n3. When user provides details, use add_issue_details\n\nWhen user reports a general issue (not task-related):\n1. Use report_issue with issue_type and description  \n2. ASK for more details\n3. Use add_issue_details when they respond\n\nFor HO users:\n- check_incidents: Shows all open issues from team\n- resolve_issue: Resolves issue and reopens task if linked\n\n## ISSUE TYPES\n- stock_empty: Product/sample stock unavailable\n- doctor_unavailable: Doctor not at clinic\n- clinic_closed: Clinic was closed\n- transport_issue: Vehicle breakdown\n- weather_issue: Bad weather\n- medical_leave: MR health issues\n- documentation_missing: Required docs unavailable\n- other: Any other issue\n\n## IMPORTANT\n- After creating ANY incident, always ask for more details\n- Remember the incident_id from the response to use with add_issue_details\n- Be empathetic when users report issues"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -605,7 +591,7 @@
         -192,
         736
       ],
-      "id": "6374d26e-2d16-40d8-a2d5-2d36f835a172",
+      "id": "b9274e7a-5a91-4afd-b619-79c653b06f04",
       "name": "Gemini Agent"
     },
     {
@@ -620,12 +606,12 @@
         -544,
         1040
       ],
-      "id": "49df86cd-0429-47f2-ad73-f2adb96c0579",
+      "id": "2fc4c660-9f95-47e8-87b0-89445c8de1d4",
       "name": "Google Gemini Flash",
       "credentials": {
         "googlePalmApi": {
           "id": "qIhHDGvUu6kDNRJk",
-          "name": "Google Gemini(PaLM) Api account"
+          "name": "Google Gemini(PaLM) Api account - Sandz"
         }
       }
     },
@@ -640,7 +626,7 @@
         -336,
         1024
       ],
-      "id": "a401e380-48c9-466f-a3f1-9a43caba8dce",
+      "id": "13ee9c4b-2d95-4ba3-9b99-42050d9718e2",
       "name": "Postgres Chat Memory",
       "credentials": {
         "postgres": {
@@ -653,7 +639,7 @@
       "parameters": {
         "name": "get_pending_works",
         "description": "Gets the current user's own pending tasks/works. Returns list of pending items with ID, title, due date.",
-        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "workflowId": "kE5Z0j3gx661FwXq",
         "responsePropertyName": "output",
         "fields": {
           "values": [
@@ -674,44 +660,14 @@
         -176,
         1024
       ],
-      "id": "edd50db9-99cc-4f2d-90c4-c3bae764a4e5",
+      "id": "b269bcb3-461c-49ef-8129-13664ad03f81",
       "name": "Tool: Get Pending"
-    },
-    {
-      "parameters": {
-        "name": "update_work_status",
-        "description": "Updates a task/work status to completed. Requires task ID and optional notes.",
-        "workflowId": "0OsDz4Y6p2UbNA8I",
-        "responsePropertyName": "result",
-        "fields": {
-          "values": [
-            {
-              "name": "action",
-              "stringValue": "update_work"
-            },
-            {
-              "name": "user_id",
-              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
-            }
-          ]
-        },
-        "specifyInputSchema": true,
-        "jsonSchemaExample": "{\n  \"id\": 123,\n  \"notes\": \"Visited doctor, requested 50 samples.\"\n}"
-      },
-      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
-      "typeVersion": 1.1,
-      "position": [
-        -16,
-        1024
-      ],
-      "id": "a9b3625f-d495-4778-8541-926ec255ce40",
-      "name": "Tool: Update Work"
     },
     {
       "parameters": {
         "name": "check_team_status",
         "description": "FOR HO ONLY. Checks pending work status of all team members (MRs) reporting to this HO.",
-        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "workflowId": "kE5Z0j3gx661FwXq",
         "responsePropertyName": "result",
         "fields": {
           "values": [
@@ -732,14 +688,14 @@
         160,
         1024
       ],
-      "id": "2e9de0d4-b25f-4491-8f45-ce932def363a",
+      "id": "e85c77da-e802-4f13-9105-eb7d6b85c140",
       "name": "Tool: Check Team"
     },
     {
       "parameters": {
         "name": "remind_team",
-        "description": "FOR HO ONLY. Sends WhatsApp reminders to team MRs about their pending targets. Filter by month or area.",
-        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "description": "### remind_team (HO ONLY)\nSend reminders to team members about pending targets.\n\nParameters:\n- remind_type (optional): \"amount\", \"visits\", or \"all\" (default: \"all\")\n  - \"amount\" = Only MRs with pending sales targets\n  - \"visits\" = Only MRs with pending doctor visit targets  \n  - \"all\" = All MRs with any pending target\n- filter_type (optional): \"month\" or \"area\" for additional filtering\n- filter_value (optional): Value for filter (e.g., \"December\", \"Chennai\")\n- note (optional): Custom message to include in reminder\n\nExamples:\n- Remind about sales: {\"action\": \"remind_team\", \"query\": {\"remind_type\": \"amount\"}}\n- Remind about visits in December: {\"action\": \"remind_team\", \"query\": {\"remind_type\": \"visits\", \"filter_type\": \"month\", \"filter_value\": \"December\"}}\n- Remind Chennai team: {\"action\": \"remind_team\", \"query\": {\"remind_type\": \"all\", \"filter_type\": \"area\", \"filter_value\": \"Chennai\"}}\n- Remind with note: {\"action\": \"remind_team\", \"query\": {\"remind_type\": \"all\", \"note\": \"Month-end deadline!\"}}",
+        "workflowId": "kE5Z0j3gx661FwXq",
         "responsePropertyName": "result",
         "fields": {
           "values": [
@@ -748,14 +704,14 @@
               "stringValue": "remind_team"
             },
             {
-              "name": "ho_id",
+              "name": "user_id",
               "stringValue": "={{ $('Auth: Get User').item.json.id }}"
             }
           ]
         },
         "specifyInputSchema": true,
         "schemaType": "manual",
-        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"filter_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"month\", \"area\"],\n      \"description\": \"Filter by 'month' or 'area'\"\n    },\n    \"filter_value\": {\n      \"type\": \"string\",\n      \"description\": \"The value to filter by (e.g. 'November' or 'Chennai')\"\n    },\n    \"note\": {\n      \"type\": \"string\",\n      \"description\": \"Custom reminder message from HO\"\n    }\n  },\n  \"required\": [\"filter_type\", \"filter_value\"]\n}"
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"remind_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"amount\", \"visits\", \"all\"],\n      \"description\": \"Filter by pending target type: 'amount' for sales, 'visits' for doctor visits, 'all' for any pending\"\n    },\n    \"filter_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"month\", \"area\"],\n      \"description\": \"Additional filter by 'month' or 'area'\"\n    },\n    \"filter_value\": {\n      \"type\": \"string\",\n      \"description\": \"The value to filter by (e.g. 'December' or 'Chennai')\"\n    },\n    \"note\": {\n      \"type\": \"string\",\n      \"description\": \"Custom reminder message from HO\"\n    }\n  },\n  \"required\": []\n}"
       },
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 1.1,
@@ -763,14 +719,14 @@
         320,
         1024
       ],
-      "id": "6bdbc84b-b4dc-4afc-b21f-74294bc9876a",
+      "id": "0d77e0c0-c708-4c5f-b519-bfa6f07f0443",
       "name": "Tool: Remind Team"
     },
     {
       "parameters": {
         "name": "hcp_wish",
         "description": "Gets a wish template image and generates personalized message for a doctor. Returns image with caption to send to the MR.",
-        "workflowId": "0OsDz4Y6p2UbNA8I",
+        "workflowId": "kE5Z0j3gx661FwXq",
         "responsePropertyName": "result",
         "fields": {
           "values": [
@@ -794,7 +750,7 @@
         480,
         1024
       ],
-      "id": "063b4708-05c3-4d84-b690-b486e2f141c3",
+      "id": "93da6ada-9397-4708-b482-7f2713238841",
       "name": "Tool: HCP Wish"
     },
     {
@@ -825,7 +781,7 @@
         800,
         1024
       ],
-      "id": "cdac9218-124d-477a-aed8-9a2a8c621d66",
+      "id": "035999e9-1d53-4b37-94f3-bddcc62a5bc3",
       "name": "Tool: Start Upload"
     },
     {
@@ -842,28 +798,15 @@
         272,
         624
       ],
-      "id": "81403e53-d994-409c-8f40-f577f1106fb3",
+      "id": "c67ff9f8-ccfd-4864-a1a9-f15d50707b7d",
       "name": "Send: Agent Response",
-      "webhookId": "9b4aba28-e671-40f5-8e6f-9ae95d1246e9",
+      "webhookId": "5952a05a-fe4f-40e1-823d-b3923b5bd18e",
       "credentials": {
         "whatsAppApi": {
           "id": "wLCoVuFQaFkfB8l2",
           "name": "WhatsApp account"
         }
       }
-    },
-    {
-      "parameters": {
-        "errorMessage": "={{ $json.error || 'Unknown error occurred' }}"
-      },
-      "type": "n8n-nodes-base.stopAndError",
-      "typeVersion": 1,
-      "position": [
-        720,
-        640
-      ],
-      "id": "b0e6d918-8f72-440a-b645-dce7ab6e77ad",
-      "name": "Error Handler"
     },
     {
       "parameters": {
@@ -878,7 +821,7 @@
         640,
         1024
       ],
-      "id": "8487bdd8-4b3e-411c-943f-594f7176f484",
+      "id": "c24f211d-265e-495f-a80a-1afa8713cbcb",
       "name": "Tool: Report Issue"
     },
     {
@@ -896,7 +839,7 @@
         960,
         1024
       ],
-      "id": "2fd6e943-26b4-432c-a28e-cbbc5664d07e",
+      "id": "7ddc4583-d75c-49bb-9c12-352f9be29e4a",
       "name": "Tool: Issue Details"
     },
     {
@@ -914,7 +857,7 @@
         1104,
         1024
       ],
-      "id": "681dc3bb-e989-425c-8094-bab26cb5d815",
+      "id": "9a49bb10-7705-4c4c-b0b5-69293e0911ae",
       "name": "Tool: Check incidents"
     },
     {
@@ -932,7 +875,7 @@
         -288,
         1248
       ],
-      "id": "d92a0e50-d118-41f9-b21c-33aabf07ae25",
+      "id": "f5744d50-6c4e-49f2-a19f-e1563b5e7a03",
       "name": "Tool: Resolve Issues"
     },
     {
@@ -947,7 +890,7 @@
           "conditions": [
             {
               "id": "a683a240-5a1d-4aa6-99c1-68b9a96001b0",
-              "leftValue": "={{ $json.messages[0] }}",
+              "leftValue": "={{ $json.messages[0].text.body }}",
               "rightValue": "is",
               "operator": {
                 "type": "string",
@@ -966,11 +909,74 @@
         -1216,
         368
       ],
-      "id": "48ce67e3-08f4-49ce-94fc-200be36b37f0",
+      "id": "e399a9b6-288c-407f-9c85-cd019c837878",
       "name": "If"
+    },
+    {
+      "parameters": {
+        "name": "update_work_status",
+        "description": "Update the MR's current month target progress. Can update sales amount achieved or doctors visited count. Use when user wants to update their target numbers.",
+        "workflowId": "kE5Z0j3gx661FwXq",
+        "responsePropertyName": "result",
+        "fields": {
+          "values": [
+            {
+              "name": "action",
+              "stringValue": "update_work"
+            },
+            {
+              "name": "user_id",
+              "stringValue": "={{ $('Auth: Get User').item.json.id }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"update_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"amount\", \"visits\"],\n      \"description\": \"What to update: 'amount' for sales, 'visits' for doctor visits\"\n    },\n    \"value\": {\n      \"type\": \"number\",\n      \"description\": \"The value to ADD to current progress (not replace)\"\n    }\n  },\n  \"required\": [\"update_type\", \"value\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        1024
+      ],
+      "id": "39a84d58-b5b4-4041-b982-0d1f44567fa3",
+      "name": "Tool: Update Targets"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "WhatsApp Trigger": [
+      {
+        "json": {
+          "messaging_product": "whatsapp",
+          "metadata": {
+            "display_phone_number": "919702183868",
+            "phone_number_id": "715904891617490"
+          },
+          "contacts": [
+            {
+              "profile": {
+                "name": "Brijesh"
+              },
+              "wa_id": "919677097376"
+            }
+          ],
+          "messages": [
+            {
+              "from": "919677097376",
+              "id": "wamid.HBgMOTE5Njc3MDk3Mzc2FQIAEhgUM0JEMzBEMjlEMDU4NDE1QUVCOUQA",
+              "timestamp": "1766203119",
+              "text": {
+                "body": "I have visited 2 doctors upto now, update my targets"
+              },
+              "type": "text"
+            }
+          ],
+          "field": "messages"
+        }
+      }
+    ]
+  },
   "connections": {
     "WhatsApp Trigger": {
       "main": [
@@ -1003,13 +1009,7 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "Send: Access Denied",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Route: Message Type": {
@@ -1035,13 +1035,7 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "Handle Quiz Answer",
-            "type": "main",
-            "index": 0
-          }
-        ],
+        [],
         [
           {
             "node": "Gemini Agent",
@@ -1177,13 +1171,7 @@
     },
     "Gemini Agent": {
       "main": [
-        [
-          {
-            "node": "Send: Agent Response",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Google Gemini Flash": {
@@ -1217,11 +1205,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "Tool: Update Work": {
-      "ai_tool": [
-        []
       ]
     },
     "Tool: Check Team": {
@@ -1298,17 +1281,28 @@
           }
         ]
       ]
+    },
+    "Tool: Update Targets": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gemini Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "fcdd6e29-7a75-49ec-9e9a-595c97c8ed75",
+  "versionId": "eee7aca7-6353-41bd-b810-4e747883259c",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "dc7cbdbfad8d40a565225d9667a7a22dac2b6e5b51f0cb1fe88924f14c09b03d"
   },
-  "id": "YVzq7zDfE2lb4XBe",
+  "id": "658Vskouf8g9Xfng",
   "tags": []
 }

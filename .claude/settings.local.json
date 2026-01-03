@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__n8n__n8n_list_workflows",
+      "mcp__n8n__get_node"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "n8n",
+    "supabase"
+  ]
+}

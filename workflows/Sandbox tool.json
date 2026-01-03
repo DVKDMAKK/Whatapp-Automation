@@ -1,0 +1,1381 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// This runs once per item in \"Run Once for Each Item\" mode\nconst t = $input.item.json;\nconst note = $('When Executed by Another Workflow').item.json.query?.note || '';\n\n// Format currency\nconst formatAmount = (amt) => '₹' + Number(amt || 0).toLocaleString('en-IN');\n\n// Progress bar\nconst progressBar = (pct) => {\n  const filled = Math.round(pct / 10);\n  return '▓'.repeat(filled) + '░'.repeat(10 - filled);\n};\n\n// Build personalized message\nlet message = `🔔 *Target Reminder*\\n\\n`;\nmessage += `Hello ${t.first_name},\\n\\n`;\nmessage += `Your *${t.month}* targets for *${t.area}*:\\n`;\nmessage += `───────────────────\\n\\n`;\n\n// Sales section\nif (t.pending_type === 'amount_pending' || t.pending_type === 'both_pending') {\n  const remaining = t.target_amount - t.achieved_amount;\n  message += `💰 *Sales Amount*\\n`;\n  message += `${progressBar(t.amount_percentage)} ${t.amount_percentage}%\\n`;\n  message += `${formatAmount(t.achieved_amount)} / ${formatAmount(t.target_amount)}\\n`;\n  message += `⏳ Remaining: ${formatAmount(remaining)}\\n\\n`;\n} else {\n  message += `✅ *Sales:* Target achieved!\\n\\n`;\n}\n\n// Visits section\nif (t.pending_type === 'visits_pending' || t.pending_type === 'both_pending') {\n  const remaining = t.doctors_visit_target - t.doctors_visited;\n  message += `👨‍⚕️ *Doctor Visits*\\n`;\n  message += `${progressBar(t.visits_percentage)} ${t.visits_percentage}%\\n`;\n  message += `${t.doctors_visited} / ${t.doctors_visit_target} visits\\n`;\n  message += `⏳ Remaining: ${remaining} visits\\n\\n`;\n} else {\n  message += `✅ *Visits:* Target achieved!\\n\\n`;\n}\n\nmessage += `───────────────────\\n`;\n\n// Custom note from HO\nif (note) {\n  message += `\\n📝 *Note from Manager:*\\n${note}\\n`;\n}\n\nmessage += `\\nPlease complete your pending targets. Reply \"my targets\" to see details.`;\n\n// (add your visits part + closing text here)\n\nreturn {\n  ...$input.item.json,\n  reminder_message: message,\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1552,
+        2640
+      ],
+      "id": "c7160bbd-0b00-4bd0-af2e-6e2ce122869f",
+      "name": "Format: Reminder Message"
+    },
+    {
+      "parameters": {
+        "amount": 0.1,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        2848
+      ],
+      "id": "a225d0b0-6b7d-4f66-b72d-9147ea514fe2",
+      "name": "Wait: Rate Limit",
+      "webhookId": "7ca25543-31d0-445c-a17e-25d24befe53e"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.first().json.data || [];\nconst count = items.length;\n\nlet message = `✅ *Reminders Sent*\\n\\n`;\nmessage += `Successfully sent reminders to *${count}* team member(s).\\n\\n`;\nmessage += `───────────────────\\n`;\nmessage += `📋 *Reminded:*\\n`;\n\nitems.forEach(item => {\n  message += `• ${item.first_name} ${item.last_name || ''}\\n`;\n});\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        2768
+      ],
+      "id": "38901cec-f20c-43a5-936a-48d22dcd266c",
+      "name": "Format: Remind Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const t = $input.first().json;\nconst updateType = $('When Executed by Another Workflow').item.json.query.update_type; \n\nconst formatAmount = (amt) => '₹' + Number(amt || 0).toLocaleString('en-IN');\n\nconst progressBar = (pct) => {\n  const filled = Math.round((pct || 0) / 10);\n  return '▓'.repeat(filled) + '░'.repeat(10 - filled);\n};\n\nconst getIcon = (pct) => {\n  if (pct >= 100) return '✅';\n  if (pct >= 75) return '🟢';\n  if (pct >= 50) return '🟡';\n  if (pct >= 25) return '🟠';\n  return '🔴';\n};\n\nlet message = '';\n\nif (t.pending_type === 'completed') {\n  message = `🎉 *Congratulations!*\\n\\n`;\n  message += `You've achieved ALL your targets for *${t.month_year}*!\\n\\n`;\n  message += `───────────────────\\n\\n`;\n  message += `✅ *Sales Amount*\\n`;\n  message += `${progressBar(100)} 100%\\n`;\n  message += `${formatAmount(t.achieved_amount)} / ${formatAmount(t.target_amount)}\\n\\n`;\n  message += `✅ *Doctor Visits*\\n`;\n  message += `${progressBar(100)} 100%\\n`;\n  message += `${t.doctors_visited} / ${t.doctors_visit_target} visits\\n\\n`;\n  message += `───────────────────\\n`;\n  message += `🏆 *Target Status: ACHIEVED*\\n\\n`;\n  message += `Great work! Keep it up! 💪`;\n} else {\n  const amtPct = t.amount_percentage || 0;\n  const visPct = t.visits_percentage || 0;\n  const amtIcon = getIcon(amtPct);\n  const visIcon = getIcon(visPct);\n  \n  if (updateType === 'amount') {\n    message = `✅ *Sales Amount Updated*\\n\\n`;\n    message += `*${t.month_year}* - ${t.area || 'N/A'}\\n`;\n    message += `───────────────────\\n\\n`;\n    message += `${amtIcon} *Sales Amount*\\n`;\n    message += `${progressBar(amtPct)} ${amtPct}%\\n`;\n    message += `${formatAmount(t.achieved_amount)} / ${formatAmount(t.target_amount)}\\n`;\n    if (amtPct < 100) {\n      message += `⏳ Remaining: ${formatAmount(t.target_amount - t.achieved_amount)}\\n`;\n    } else {\n      message += `🎯 Target Achieved!\\n`;\n    }\n    message += `\\n${visIcon} *Doctor Visits*\\n`;\n    message += `${progressBar(visPct)} ${visPct}%\\n`;\n    message += `${t.doctors_visited} / ${t.doctors_visit_target} visits\\n`;\n    if (visPct < 100) {\n      message += `⏳ Remaining: ${t.doctors_visit_target - t.doctors_visited} visits\\n`;\n    } else {\n      message += `🎯 Target Achieved!\\n`;\n    }\n  } else {\n    message = `✅ *Doctor Visits Updated*\\n\\n`;\n    message += `*${t.month_year}* - ${t.area || 'N/A'}\\n`;\n    message += `───────────────────\\n\\n`;\n    message += `${visIcon} *Doctor Visits*\\n`;\n    message += `${progressBar(visPct)} ${visPct}%\\n`;\n    message += `${t.doctors_visited} / ${t.doctors_visit_target} visits\\n`;\n    if (visPct < 100) {\n      message += `⏳ Remaining: ${t.doctors_visit_target - t.doctors_visited} visits\\n`;\n    } else {\n      message += `🎯 Target Achieved!\\n`;\n    }\n    message += `\\n${amtIcon} *Sales Amount*\\n`;\n    message += `${progressBar(amtPct)} ${amtPct}%\\n`;\n    message += `${formatAmount(t.achieved_amount)} / ${formatAmount(t.target_amount)}\\n`;\n    if (amtPct < 100) {\n      message += `⏳ Remaining: ${formatAmount(t.target_amount - t.achieved_amount)}\\n`;\n    } else {\n      message += `🎯 Target Achieved!\\n`;\n    }\n  }\n  \n  message += `\\n───────────────────\\n`;\n  \n  if (t.pending_type === 'visits_pending') {\n    message += `\\n💡 Sales done! Focus on ${t.doctors_visit_target - t.doctors_visited} more visits.`;\n  } else if (t.pending_type === 'amount_pending') {\n    message += `\\n💡 Visits done! Focus on ${formatAmount(t.target_amount - t.achieved_amount)} more in sales.`;\n  } else {\n    message += `\\n💡 Keep going! You're making progress.`;\n  }\n}\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1408,
+        3408
+      ],
+      "id": "e19c280c-f304-4fd8-879f-87fe0d113ed1",
+      "name": "Format: Update Response"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO incidents (reported_by, reported_by_name, description, status) VALUES ($1, $2, $3, 'open') RETURNING id, created_at",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id, $json.user_name, '[' + $json.query.incident_type.toUpperCase() + '] ' + $json.query.description] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2352,
+        3888
+      ],
+      "id": "817342b0-bde0-498d-993a-3685d1461aff",
+      "name": "DB: Insert Incident",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incident = $input.first().json;\nconst incidentType = $('When Executed by Another Workflow').item.json.query.incident_type;\nconst description = $('When Executed by Another Workflow').item.json.query.description;\nconst userName = $('When Executed by Another Workflow').item.json.user_name;\n\nconst createdAt = new Date(incident.created_at).toLocaleString('en-IN', {\n  day: '2-digit',\n  month: 'short',\n  year: 'numeric',\n  hour: '2-digit',\n  minute: '2-digit'\n});\n\nlet message = `✅ *Incident Reported*\\n\\n`;\nmessage += `───────────────────\\n`;\nmessage += `🆔 *ID:* ${incident.id.substring(0, 8)}\\n`;\nmessage += `📋 *Type:* ${incidentType.replace(/_/g, ' ').toUpperCase()}\\n`;\nmessage += `📝 *Description:*\\n${description}\\n`;\nmessage += `🕐 *Reported:* ${createdAt}\\n`;\nmessage += `───────────────────\\n\\n`;\nmessage += `Your incident has been logged and HO will be notified.\\n\\n`;\n\nreturn [{ json: { result: message, incident_id: incident.id } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2112,
+        3888
+      ],
+      "id": "a9b79e02-cffb-4c3b-8319-8d4bce437c85",
+      "name": "Format: Incident Created"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT i.id, i.description, i.status, i.created_at, i.reported_by_name, s.first_name, s.last_name, s.\"Phone_number\" FROM incidents i JOIN staff s ON i.reported_by = s.id WHERE i.status = 'open' AND s.reporting_to = $1 ORDER BY i.created_at DESC",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2352,
+        4128
+      ],
+      "id": "ce47034d-bd86-40ce-bebb-d107577ba28d",
+      "name": "DB: Get Team Incidents",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incidents = $input.all();\n\nif (!incidents || incidents.length === 0 || !incidents[0].json.id) {\n  return [{ \n    json: { \n      result: '✅ *No Open Incidents*\\n\\nGreat news! There are no open incidents from your team at the moment.' \n    } \n  }];\n}\n\nlet message = `🚨 *Team Incidents*\\n`;\nmessage += `📅 ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}\\n`;\nmessage += `───────────────────\\n\\n`;\nmessage += `📊 *Open Incidents:* ${incidents.length}\\n\\n`;\n\nincidents.forEach((item, index) => {\n  const i = item.json;\n  const createdAt = new Date(i.created_at).toLocaleDateString('en-IN', {\n    day: '2-digit',\n    month: 'short',\n    hour: '2-digit',\n    minute: '2-digit'\n  });\n  \n  const name = i.reported_by_name || `${i.first_name} ${i.last_name || ''}`.trim();\n  \n  message += `───────────────────\\n`;\n  message += `*#${index + 1}* 🆔 ${i.id.substring(0, 8)}\\n`;\n  message += `👤 *Reported by:* ${name}\\n`;\n  message += `📝 *Issue:* ${i.description}\\n`;\n  message += `🕐 *Time:* ${createdAt}\\n`;\n  message += `📌 *Status:* ${i.status.toUpperCase()}\\n\\n`;\n});\n\nmessage += `───────────────────\\n`;\nmessage += `💡 _To update status, contact MR directly or update via dashboard._`;\n\nreturn [{ json: { result: message, incident_count: incidents.length } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2112,
+        4128
+      ],
+      "id": "8340ca9e-08d6-4d61-b24b-09e77f60b386",
+      "name": "Format: Team Incidents"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT w.image_url, w.event_name, d.name as doctor_name, d.specialty FROM wish_templates w, doctors d WHERE w.event_name ILIKE '%' || $1 || '%' AND d.name ILIKE '%' || $2 || '%' AND w.is_active = true LIMIT 1",
+        "options": {
+          "queryReplacement": "={{ [$json.query.event_name, $json.query.doctor_name] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2352,
+        3168
+      ],
+      "id": "89448bc9-20b4-4515-be28-d52ad22694ef",
+      "name": "DB: Get Wish Template",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.image_url }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -2112,
+        3168
+      ],
+      "id": "437231b6-e5d6-4f4d-b40d-1bdfa6c96027",
+      "name": "Has Template?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "get_pending",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "check_team",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "remind_team",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "hcp_wish",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "update_work",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bcaf8963-08c8-4f1f-b15a-7ad446fc2c3c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "report_incident",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "check_incidents",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "get_upload_link",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "start_campaign_upload",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -2768,
+        3392
+      ],
+      "id": "7ad55da2-0af2-4228-9b41-0ac91b40549e",
+      "name": "Route: Action1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, area, target_amount, achieved_amount, doctors_visit_target, doctors_visited, status, CASE WHEN target_amount > 0 THEN ROUND((achieved_amount::DECIMAL / target_amount) * 100, 1) ELSE 0 END as amount_percentage, CASE WHEN doctors_visit_target > 0 THEN ROUND((doctors_visited::DECIMAL / doctors_visit_target) * 100, 1) ELSE 0 END as visits_percentage, CASE WHEN (doctors_visited < doctors_visit_target OR doctors_visit_target = 0 OR doctors_visit_target IS NULL) AND (achieved_amount < target_amount OR target_amount = 0 OR target_amount IS NULL) THEN 'both_pending' WHEN doctors_visited < doctors_visit_target THEN 'visits_pending' WHEN achieved_amount < target_amount THEN 'amount_pending' ELSE 'completed' END as pending_type FROM targets WHERE mr_id = $1 AND status = 'Pending'",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2512,
+        2240
+      ],
+      "id": "47a75cf1-2d8a-4390-88c2-1405f4344126",
+      "name": "DB: Get Pending Targets1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const targets = $input.all();\n\n// No pending targets\nif (!targets || targets.length === 0 || !targets[0].json.id) {\n  return [{ \n    json: { \n      result: '🎉 *All Targets Achieved!*\\n\\nYou have no pending targets this month. Excellent work! Keep it up! 💪' \n    } \n  }];\n}\n\nconst t = targets[0].json;\n\n// Format currency\nconst formatAmount = (amt) => {\n  if (!amt && amt !== 0) return '₹0';\n  return '₹' + Number(amt).toLocaleString('en-IN');\n};\n\n// Progress bar generator\nconst progressBar = (percentage) => {\n  const filled = Math.round(percentage / 10);\n  const empty = Math.max(0, 10 - filled);  return '▓'.repeat(filled) + '░'.repeat(empty);\n};\n\n// Status icons based on percentage\nconst getStatusIcon = (current, target) => {\n  if (!target || target === 0) return '⚪';\n  const pct = (current / target) * 100;\n  if (pct >= 100) return '✅';\n  if (pct >= 75) return '🟢';\n  if (pct >= 50) return '🟡';\n  if (pct >= 25) return '🟠';\n  return '🔴';\n};\n\n// Calculate values\nconst amountPct = t.amount_percentage || 0;\nconst visitsPct = t.visits_percentage || 0;\nconst amountRemaining = Math.max(0, (t.target_amount || 0) - (t.achieved_amount || 0));\nconst visitsRemaining = Math.max(0, (t.doctors_visit_target || 0) - (t.doctors_visited || 0));\n\n// Build message\nlet message = `📊 *Your Target - ${t.month_year || 'Current Month'}*\\n`;\nmessage += `📍 Area: ${t.area || 'N/A'}\\n`;\nmessage += `───────────────────\\n\\n`;\n\n// Amount section\nconst amountIcon = getStatusIcon(t.achieved_amount, t.target_amount);\nmessage += `${amountIcon} *Sales Amount*\\n`;\nmessage += `${progressBar(amountPct)} ${amountPct}%\\n`;\nmessage += `${formatAmount(t.achieved_amount)} / ${formatAmount(t.target_amount)}\\n`;\nif (amountPct < 100) {\n  message += `⏳ Remaining: ${formatAmount(amountRemaining)}\\n`;\n} else {\n  message += `🎯 Target Achieved!\\n`;\n}\n\nmessage += `\\n`;\n\n// Visits section\nconst visitsIcon = getStatusIcon(t.doctors_visited, t.doctors_visit_target);\nmessage += `${visitsIcon} *Doctor Visits*\\n`;\nmessage += `${progressBar(visitsPct)} ${visitsPct}%\\n`;\nmessage += `${t.doctors_visited || 0} / ${t.doctors_visit_target || 0} visits\\n`;\nif (visitsPct < 100) {\n  message += `⏳ Remaining: ${visitsRemaining} visits\\n`;\n} else {\n  message += `🎯 Target Achieved!\\n`;\n}\n\nmessage += `\\n───────────────────\\n`;\n\n// Smart recommendation based on pending type\nswitch (t.pending_type) {\n  case 'both_pending':\n    message += `\\n⚠️ *Focus Areas:* Both targets need attention\\n`;\n    break;\n  case 'visits_pending':\n    message += `\\n💡 *Focus Area:* Doctor visits\\n`;\n    message += `Sales target achieved! Complete ${visitsRemaining} more visits.\\n`;\n    break;\n  case 'amount_pending':\n    message += `\\n💡 *Focus Area:* Sales amount\\n`;\n    message += `Visits completed! Achieve ${formatAmount(amountRemaining)} more in sales.\\n`;\n    break;\n  case 'completed':\n    message += `\\n🎉 *All targets achieved!*\\n`;\n    break;\n}\n\n// Due date calculation\nif (t.due_date) {\n  const dueDate = new Date(t.due_date);\n  const today = new Date();\n  const daysLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));\n  \n  if (daysLeft > 0) {\n    message += `\\n📅 *${daysLeft} days left* to complete targets`;\n  } else if (daysLeft === 0) {\n    message += `\\n⚠️ *Due today!*`;\n  } else {\n    message += `\\n🔴 *Overdue by ${Math.abs(daysLeft)} days*`;\n  }\n}\n\nmessage += `\\n\\n───────────────────`;\nmessage += `\\n💡 _Commands:_`;\nmessage += `\\n• \"Update amount to [value]\"`;\nmessage += `\\n• \"Update visits to [value]\"`;\n\nreturn [{ json: { result: message, target_id: t.id, pending_type: t.pending_type } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2224,
+        2240
+      ],
+      "id": "30597165-a50e-405f-85d6-3330748ff647",
+      "name": "Format: Pending Works1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT s.id as staff_id, s.first_name, s.last_name, s.\"Phone_number\", t.id as target_id, t.month_year, t.area, t.target_amount, t.achieved_amount, t.doctors_visit_target, t.doctors_visited, t.status, CASE WHEN t.target_amount > 0 THEN ROUND((t.achieved_amount::DECIMAL / t.target_amount) * 100, 1) ELSE 0 END as amount_percentage, CASE WHEN t.doctors_visit_target > 0 THEN ROUND((t.doctors_visited::DECIMAL / t.doctors_visit_target) * 100, 1) ELSE 0 END as visits_percentage, CASE WHEN t.achieved_amount < t.target_amount AND t.doctors_visited < t.doctors_visit_target THEN 'both_pending' WHEN t.doctors_visited < t.doctors_visit_target THEN 'visits_pending' WHEN t.achieved_amount < t.target_amount THEN 'amount_pending' ELSE 'completed' END as pending_type FROM staff s LEFT JOIN targets t ON t.mr_id = s.id AND t.status = 'Pending' WHERE s.reporting_to = $1 AND s.role = 'MR' ORDER BY CASE WHEN t.id IS NULL THEN 3 WHEN t.achieved_amount < t.target_amount AND t.doctors_visited < t.doctors_visit_target THEN 1 ELSE 2 END, s.first_name",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2432,
+        2720
+      ],
+      "id": "7c0d1e14-49de-441c-b332-b853cf97a5fb",
+      "name": "DB: Check Team Status1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// No team members found\nif (!items || items.length === 0) {\n  return [{ json: { result: '⚠️ *No Team Members Found*\\n\\nYou don\\'t have any MRs reporting to you.' } }];\n}\n\n// Format currency\nconst formatAmount = (amt) => '₹' + Number(amt || 0).toLocaleString('en-IN');\n\n// Mini progress bar (5 chars)\nconst miniBar = (pct) => {\n  const filled = Math.round((pct || 0) / 20);\n  return '▓'.repeat(filled) + '░'.repeat(5 - filled);\n};\n\n// Status icon based on percentage\nconst getIcon = (pct) => {\n  if (pct >= 100) return '✅';\n  if (pct >= 75) return '🟢';\n  if (pct >= 50) return '🟡';\n  if (pct >= 25) return '🟠';\n  return '🔴';\n};\n\n// Count statistics\nlet totalMRs = 0;\nlet bothPending = 0;\nlet amountPending = 0;\nlet visitsPending = 0;\nlet allCompleted = 0;\nlet noTargets = 0;\n\nitems.forEach(item => {\n  totalMRs++;\n  const t = item.json;\n  if (!t.target_id) noTargets++;\n  else if (t.pending_type === 'both_pending') bothPending++;\n  else if (t.pending_type === 'amount_pending') amountPending++;\n  else if (t.pending_type === 'visits_pending') visitsPending++;\n  else allCompleted++;\n});\n\n// Build message\nlet message = `👥 *Team Target Status*\\n`;\nmessage += `📅 ${new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}\\n`;\nmessage += `───────────────────\\n\\n`;\n\n// Summary stats\nmessage += `📊 *Summary* (${totalMRs} MRs)\\n`;\nif (bothPending > 0) message += `🔴 Both pending: ${bothPending}\\n`;\nif (amountPending > 0) message += `🟠 Amount pending: ${amountPending}\\n`;\nif (visitsPending > 0) message += `🟡 Visits pending: ${visitsPending}\\n`;\nif (allCompleted > 0) message += `✅ All completed: ${allCompleted}\\n`;\nif (noTargets > 0) message += `⚪ No targets assigned: ${noTargets}\\n`;\n\nmessage += `\\n───────────────────\\n`;\n\n// Individual MR details\nitems.forEach(item => {\n  const t = item.json;\n  const name = `${t.first_name} ${t.last_name || ''}`.trim();\n  \n  if (!t.target_id) {\n    message += `\\n👤 *${name}*\\n`;\n    message += `   ⚪ No target assigned\\n`;\n  } else {\n    const amtIcon = getIcon(t.amount_percentage);\n    const visIcon = getIcon(t.visits_percentage);\n    \n    message += `\\n👤 *${name}*`;\n    if (t.area) message += ` _(${t.area})_`;\n    message += `\\n`;\n    \n    message += `   ${amtIcon} 💰 ${miniBar(t.amount_percentage)} ${t.amount_percentage}%`;\n    if (t.amount_percentage < 100) {\n      const remaining = (t.target_amount || 0) - (t.achieved_amount || 0);\n      message += ` (${formatAmount(remaining)} left)`;\n    }\n    message += `\\n`;\n    \n    message += `   ${visIcon} 👨‍⚕️ ${miniBar(t.visits_percentage)} ${t.visits_percentage}%`;\n    if (t.visits_percentage < 100) {\n      const remaining = (t.doctors_visit_target || 0) - (t.doctors_visited || 0);\n      message += ` (${remaining} left)`;\n    }\n    message += `\\n`;\n  }\n});\n\nmessage += `\\n───────────────────\\n`;\nmessage += `💡 _Commands:_\\n`;\nmessage += `• \"remind team\" - Send reminders\\n`;\nmessage += `• \"remind team about amount\" - Sales only\\n`;\nmessage += `• \"remind team about visits\" - Visits only`;\n\nreturn [{ json: { result: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2192,
+        2720
+      ],
+      "id": "469bae9b-8f01-422d-a22b-061bcae9821a",
+      "name": "Format: Team Status1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT t.id as target_id, t.month, t.area, t.target_amount, t.achieved_amount, t.doctors_visit_target, t.doctors_visited, t.status, s.\"Phone_number\", s.first_name, s.last_name, CASE WHEN t.target_amount > 0 THEN ROUND((t.achieved_amount::DECIMAL / t.target_amount) * 100, 1) ELSE 0 END as amount_percentage, CASE WHEN t.doctors_visit_target > 0 THEN ROUND((t.doctors_visited::DECIMAL / t.doctors_visit_target) * 100, 1) ELSE 0 END as visits_percentage, CASE WHEN t.achieved_amount < t.target_amount AND t.doctors_visited < t.doctors_visit_target THEN 'both_pending' WHEN t.doctors_visited < t.doctors_visit_target THEN 'visits_pending' WHEN t.achieved_amount < t.target_amount THEN 'amount_pending' ELSE 'completed' END as pending_type FROM targets t JOIN staff s ON t.mr_id = s.id WHERE t.status = 'Pending' AND s.reporting_to = $1 AND (CASE WHEN $2 = 'amount' THEN t.achieved_amount < t.target_amount WHEN $2 = 'visits' THEN t.doctors_visited < t.doctors_visit_target ELSE (t.achieved_amount < t.target_amount OR t.doctors_visited < t.doctors_visit_target) END) AND (CASE WHEN $3 = 'month' THEN t.month ILIKE '%' || $4 || '%' WHEN $3 = 'area' THEN t.area ILIKE '%' || $4 || '%' ELSE TRUE END) ORDER BY s.first_name",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id, $json.query.remind_type || 'all', $json.query.filter_type || '', $json.query.filter_value || ''] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2352,
+        2928
+      ],
+      "id": "cce8631c-f0da-41ae-a292-30310ce7ca0d",
+      "name": "DB: Get Targets to Remind1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "id": "15b6f148-91e9-4438-9fde-b50e2e9fac99"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2112,
+        2928
+      ],
+      "id": "029de161-d731-4af3-850d-549aa7df9b67",
+      "name": "Has Targets?1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "no-targets",
+              "name": "result",
+              "value": "✅ *No Pending Reminders*\n\nAll team members have either completed their targets or no targets match your filter criteria.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1936,
+        2944
+      ],
+      "id": "8a73385c-37f6-42bd-8123-6fe7fe024352",
+      "name": "Set: No Targets1"
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1776,
+        2464
+      ],
+      "id": "4a243233-b527-4421-8716-1423b5409ff8",
+      "name": "Batch: 5 at a time1"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $json.Phone_number }}",
+        "textBody": "={{ $json.reminder_message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1408,
+        2784
+      ],
+      "id": "c99a7733-078d-4c05-a647-ffe97f6e835f",
+      "name": "Send: Reminder to MR1",
+      "webhookId": "dd028bb2-294a-472c-81ba-d6020a93b41b",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        2768
+      ],
+      "id": "06ddc53d-78d1-49bd-add5-299313fac32c",
+      "name": "Aggregate: Results1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, month, area, target_amount, achieved_amount, doctors_visit_target, doctors_visited, status FROM targets WHERE mr_id = $1 AND status = 'Pending' LIMIT 1",
+        "options": {
+          "queryReplacement": "={{ [$json.user_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2368,
+        3488
+      ],
+      "id": "ac6d9bfd-1dad-4116-a71c-634973793e4f",
+      "name": "DB: Get Current Target1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2112,
+        3472
+      ],
+      "id": "3e0e5823-eba5-410d-bf8b-2762b5b2c586",
+      "name": "Has Target?1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { result: '❌ *No Active Target*\\n\\nYou don\\'t have any pending targets for this month.\\n\\nContact your manager if you believe this is an error.' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1888,
+        3680
+      ],
+      "id": "65ac4236-74a2-4636-a699-cea89e17bc0d",
+      "name": "No Target Message1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('When Executed by Another Workflow').item.json.query.update_type }}",
+                    "rightValue": "amount",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "261f86ee-605d-405a-87ee-b170641f77c8"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('When Executed by Another Workflow').item.json.query.update_type }}",
+                    "rightValue": "visits",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1888,
+        3424
+      ],
+      "id": "65a0e192-cc69-4491-9bb4-c787018dfdc8",
+      "name": "Route: Update Type1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE targets SET achieved_amount = achieved_amount + $2, last_updated_at = NOW() WHERE id = $1 RETURNING id, month_year, area, target_amount, achieved_amount, doctors_visit_target, doctors_visited, status, CASE WHEN target_amount > 0 THEN ROUND((achieved_amount::DECIMAL / target_amount) * 100, 1) ELSE 0 END as amount_percentage, CASE WHEN doctors_visit_target > 0 THEN ROUND((doctors_visited::DECIMAL / doctors_visit_target) * 100, 1) ELSE 0 END as visits_percentage, CASE WHEN achieved_amount < target_amount AND doctors_visited < doctors_visit_target THEN 'both_pending' WHEN doctors_visited < doctors_visit_target THEN 'visits_pending' WHEN achieved_amount < target_amount THEN 'amount_pending' ELSE 'completed' END as pending_type",
+        "options": {
+          "queryReplacement": "={{ [$('DB: Get Current Target1').item.json.id, $('When Executed by Another Workflow').item.json.query.value] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1648,
+        3312
+      ],
+      "id": "a329b3fd-7ca9-4282-8f20-bb1b8a4d396f",
+      "name": "DB: Update Amount1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE targets SET doctors_visited = doctors_visited + $2, last_updated_at = NOW() WHERE id = $1 RETURNING id, month_year, area, target_amount, achieved_amount, doctors_visit_target, doctors_visited, status, CASE WHEN target_amount > 0 THEN ROUND((achieved_amount::DECIMAL / target_amount) * 100, 1) ELSE 0 END as amount_percentage, CASE WHEN doctors_visit_target > 0 THEN ROUND((doctors_visited::DECIMAL / doctors_visit_target) * 100, 1) ELSE 0 END as visits_percentage, CASE WHEN achieved_amount < target_amount AND doctors_visited < doctors_visit_target THEN 'both_pending' WHEN doctors_visited < doctors_visit_target THEN 'visits_pending' WHEN achieved_amount < target_amount THEN 'amount_pending' ELSE 'completed' END as pending_type",
+        "options": {
+          "queryReplacement": "={{ [$('DB: Get Current Target1').item.json.id, $('When Executed by Another Workflow').item.json.query.value] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1648,
+        3488
+      ],
+      "id": "a0d3dfba-3ee1-4889-8591-49dac853b41d",
+      "name": "DB: Update Visits1",
+      "credentials": {
+        "postgres": {
+          "id": "iaJytqieewg1gjyp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { result: '❌ *Invalid Update Type*\\n\\nPlease specify what to update:\\n• \"Update amount to [value]\"\\n• \"Update visits to [value]\"' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1648,
+        3648
+      ],
+      "id": "91ed7522-1181-4196-8612-a3d1e9e71c17",
+      "name": "Invalid Type Message1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ⚠️ UPDATE THIS URL TO YOUR ACTUAL UPLOAD PAGE URL\nconst UPLOAD_PAGE_URL = 'https://your-domain.com/upload';\n\nlet message = `📸 *Upload Prescription Images*\\n\\n`;\nmessage += `───────────────────\\n\\n`;\nmessage += `👆 *Tap the link below to upload:*\\n`;\nmessage += `${UPLOAD_PAGE_URL}\\n\\n`;\nmessage += `───────────────────\\n\\n`;\nmessage += `📝 *Instructions:*\\n`;\nmessage += `1. Open the link above\\n`;\nmessage += `2. Enter the campaign name\\n`;\nmessage += `3. Select and upload your images\\n`;\nmessage += `4. You'll receive a confirmation here\\n\\n`;\nmessage += `💡 _Supported formats: JPG, PNG, PDF_`;\n\nreturn [{ json: { result: message, upload_url: UPLOAD_PAGE_URL } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2352,
+        4368
+      ],
+      "id": "8fff27be-49dd-4aeb-ba32-c57de3ee8dc9",
+      "name": "Format: Upload Link1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wish-fail",
+              "name": "result",
+              "value": "❌ *Template Not Found*\n\nSorry, I couldn't find a matching wish template or doctor.\n\nPlease check:\n• Event name (e.g., Diwali, Christmas, Birthday)\n• Doctor name spelling",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1888,
+        3248
+      ],
+      "id": "ed8a6141-51de-499d-97ea-ea78371edd15",
+      "name": "Set: Wish Not Found1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.image_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1888,
+        3088
+      ],
+      "id": "a8cd28aa-4396-4754-97dc-efd822945999",
+      "name": "Download: Wish Image1"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "phoneNumberId": "715904891617490",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1648,
+        3088
+      ],
+      "id": "255ff628-a30e-4dfa-b2b6-85d1740dc23b",
+      "name": "Upload: To WhatsApp1",
+      "webhookId": "c96b993a-8536-43b6-bd07-0ac44e016fba",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-exp",
+          "mode": "list"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write a short, warm WhatsApp message for a Medical Representative to send to {{ $('DB: Get Wish Template').item.json.doctor_name }} ({{ $('DB: Get Wish Template').item.json.specialty }}) wishing them a happy {{ $('DB: Get Wish Template').item.json.event_name }}.\n\nRules:\n- Keep it professional but warm\n- Max 3 sentences\n- DO NOT include any placeholder text like [Your Name] or [Company]\n- DO NOT include any URLs or links\n- Use appropriate emoji (1-2 max)"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1408,
+        3088
+      ],
+      "id": "264096f2-ed50-4627-96b4-9e8ca0682648",
+      "name": "Generate: Wish Message1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qIhHDGvUu6kDNRJk",
+          "name": "Google Gemini(PaLM) Api account - Sandz"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "715904891617490",
+        "recipientPhoneNumber": "={{ $('When Called by Agent').item.json.chat_id }}",
+        "messageType": "image",
+        "mediaPath": "useMediaId",
+        "mediaId": "={{ $('Upload: To WhatsApp1').item.json.id }}",
+        "additionalFields": {
+          "mediaCaption": "={{ $json.content?.parts?.[0]?.text || $json.text || 'Warm wishes!' }}"
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1088,
+        3088
+      ],
+      "id": "a164d527-1b40-42ca-a69e-780ee217798a",
+      "name": "Send: Wish Image to MR1",
+      "webhookId": "01a6c57b-5216-49fd-a244-0d4ebd237d17",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wLCoVuFQaFkfB8l2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wish-success",
+              "name": "result",
+              "value": "✅ *Wish Template Sent*\n\nThe wish image has been sent above. You can forward it to the respective doctor.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -928,
+        3088
+      ],
+      "id": "3a17e4ec-7fb9-46ac-9657-afad5b7faca5",
+      "name": "Set: Wish Success1"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3120,
+        3488
+      ],
+      "id": "96a48065-65d2-4cbc-af4b-377362209ea7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "tableId": "campaign_upload_sessions",
+        "dataToSend": "defineBelow",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "mr_phone",
+              "fieldValue": "={{ $json.chat_id }}"
+            },
+            {
+              "fieldName": "campaign_name",
+              "fieldValue": "={{ $json.query.campaign_name }}"
+            },
+            {
+              "fieldName": "status",
+              "fieldValue": "active"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2352,
+        4608
+      ],
+      "id": "b1c2d3e4-f5a6-4789-0123-456789abcdef",
+      "name": "DB: Create Campaign Session",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iZxtWuO2BtxzHOeM",
+          "name": "Whatsapp Automation DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const session = $input.first().json;\nconst campaignName = $('When Executed by Another Workflow').item.json.query.campaign_name;\n\nlet message = `📸 *Campaign Upload Started*\\n\\n`;\nmessage += `───────────────────\\n`;\nmessage += `📋 *Campaign:* ${campaignName}\\n`;\nmessage += `⏱️ *Session expires in:* 30 minutes\\n`;\nmessage += `───────────────────\\n\\n`;\nmessage += `📝 *Instructions:*\\n`;\nmessage += `1. Send your campaign images now\\n`;\nmessage += `2. You can send multiple images\\n`;\nmessage += `3. Say \"*over*\" when you're done\\n\\n`;\nmessage += `💡 _Images will be saved to ${campaignName} campaign_`;\n\nreturn [{ json: { result: message, session_id: session.id, campaign_name: campaignName } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2112,
+        4608
+      ],
+      "id": "c2d3e4f5-a6b7-4890-1234-567890abcdef",
+      "name": "Format: Campaign Session Created"
+    }
+  ],
+  "connections": {
+    "Format: Reminder Message": {
+      "main": [
+        [
+          {
+            "node": "Send: Reminder to MR1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "Batch: 5 at a time1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Insert Incident": {
+      "main": [
+        [
+          {
+            "node": "Format: Incident Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Team Incidents": {
+      "main": [
+        [
+          {
+            "node": "Format: Team Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Wish Template": {
+      "main": [
+        [
+          {
+            "node": "Has Template?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Template?": {
+      "main": [
+        [
+          {
+            "node": "Download: Wish Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Wish Not Found1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Action1": {
+      "main": [
+        [
+          {
+            "node": "DB: Get Pending Targets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Check Team Status1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Get Targets to Remind1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Get Wish Template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Get Current Target1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Insert Incident",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Get Team Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: Upload Link1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Create Campaign Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Create Campaign Session": {
+      "main": [
+        [
+          {
+            "node": "Format: Campaign Session Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Pending Targets1": {
+      "main": [
+        [
+          {
+            "node": "Format: Pending Works1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Check Team Status1": {
+      "main": [
+        [
+          {
+            "node": "Format: Team Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Targets to Remind1": {
+      "main": [
+        [
+          {
+            "node": "Has Targets?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Targets?1": {
+      "main": [
+        [
+          {
+            "node": "Batch: 5 at a time1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: No Targets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch: 5 at a time1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate: Results1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: Reminder Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: Reminder to MR1": {
+      "main": [
+        [
+          {
+            "node": "Wait: Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate: Results1": {
+      "main": [
+        [
+          {
+            "node": "Format: Remind Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Get Current Target1": {
+      "main": [
+        [
+          {
+            "node": "Has Target?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Target?1": {
+      "main": [
+        [
+          {
+            "node": "Route: Update Type1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Target Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Update Type1": {
+      "main": [
+        [
+          {
+            "node": "DB: Update Amount1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Update Visits1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid Type Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Update Amount1": {
+      "main": [
+        [
+          {
+            "node": "Format: Update Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Update Visits1": {
+      "main": [
+        [
+          {
+            "node": "Format: Update Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download: Wish Image1": {
+      "main": [
+        [
+          {
+            "node": "Upload: To WhatsApp1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload: To WhatsApp1": {
+      "main": [
+        [
+          {
+            "node": "Generate: Wish Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate: Wish Message1": {
+      "main": [
+        [
+          {
+            "node": "Send: Wish Image to MR1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: Wish Image to MR1": {
+      "main": [
+        [
+          {
+            "node": "Set: Wish Success1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Route: Action1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "action": "check_incidents",
+        "user_id": "32f93a22-c359-4ac2-9466-c8d1bc5459fe"
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "dc7cbdbfad8d40a565225d9667a7a22dac2b6e5b51f0cb1fe88924f14c09b03d"
+  }
+}

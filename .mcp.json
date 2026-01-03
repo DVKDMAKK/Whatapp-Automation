@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "n8n": {
+      "command": "cmd.exe",
+      "args": ["/c", "npx", "-y", "n8n-mcp"],
+      "env": {
+        "N8N_API_URL": "http://localhost:5678/api/v1",
+        "N8N_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMDc3MDBkMi04MzI1LTRlNDktYTZiNy1lN2I5ZmVmOGM5ODYiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzY2MzgyNzI5fQ.5FTRMVGsNHbYiTHl413tTZck1NngygR9gMiDiq1GGXg"
+      }
+    },
+    "supabase": {
+      "command": "cmd.exe",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-supabase"],
+      "env": {
+        "SUPABASE_URL": "https://amrxvoyiwlqfsfepvryn.supabase.co",
+        "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtcnh2b3lpd2xxZnNmZXB2cnluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDk1NTMxNywiZXhwIjoyMDgwNTMxMzE3fQ.4vCQiMf1vA4bK7H5ByuBIt1OQm4QnfeHGungcdhljiw"
+      }
+    }
+  }
+}

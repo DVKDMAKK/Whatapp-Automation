@@ -63,3 +63,6 @@ The agent has role-based access to these tools:
 
 ### Custom Nodes
 The project uses `n8n-nodes-convert-image` package for image processing.
+
+##SQL Queries
+Use .md file to provide the sql queries to the user
